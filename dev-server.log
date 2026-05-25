@@ -38,3 +38,12 @@ Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts
 ✓ Compiled in 27.3s
 ✓ Compiled in 22s
 ✓ Compiled in 9.4s
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.204.232.148:3000
+- Environments: .env
+✓ Ready in 9.9s
+- Experiments (use with caution):
+  · serverActions
+
