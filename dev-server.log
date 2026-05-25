@@ -1,0 +1,40 @@
+
+> 2blea-platform@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 52440, using available port 3001 instead.
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3001
+- Netwo GET /api/services 200 in 1002ms (next.js: 789ms, application-code: 213ms)
+ GET /api/clients 401 in 102ms (next.js: 67ms, application-code: 35ms)
+ GET /api/offers 200 in 94ms (next.js: 72ms, application-code: 23ms)
+ GET / 200 in 531ms (next.js: 189ms, application-code: 342ms)
+  Reload env: .env
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.206.198.55:3000
+- Environments: .env
+✓ Ready in 9.2s
+- Experiments (use with caution):
+  · serverActions
+
+Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+⨯ unhandledRejection: Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+⨯ unhandledRejection:  Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+✓ Compiled in 4.2s
+Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+⨯ unhandledRejection: Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+⨯ unhandledRejection:  Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts" are detected. Please use "./src\proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames
+✓ Compiled in 22.9s
+✓ Compiled in 10.3s
+✓ Compiled in 57.3s
+✓ Compiled in 27.3s
+✓ Compiled in 22s
+✓ Compiled in 9.4s

@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENTE
+}
+
+enum ProjectStatus {
+  PENDIENTE
+  EN_PROGRESO
+  ESPERANDO_FEEDBACK
+  FINALIZADO
+  ENTREGADO
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(CLIENTE)
+  phone     String?
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  client        Client?
+  conversations Conversation[] @relation("AdminConversations")
+  sentMessages  Message[]     @relation("SenderMessages")
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+
+  @@index([email, role])
+  @@index([role, deletedAt])
+  @@index([deletedAt])
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  company   String?
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects      Project[]
+  conversations Conversation[]
+
+  @@index([deletedAt])
+  @@index([company])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  basePrice   Float
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  extras Extra[]
+  offers Offer[]
+
+  @@index([active, order])
+  @@index([deletedAt])
+}
+
+model Extra {
+  id        String   @id @default(cuid())
+  name      String
+  price     Float
+  serviceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId, deletedAt])
+  @@index([deletedAt])
+}
+
+model Offer {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  discount    Int       @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  active      Boolean   @default(true)
+  featured    Boolean   @default(false)
+  serviceId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  service Service? @relation(fields: [serviceId], references: [id])
+
+  @@index([active, featured, deletedAt])
+  @@index([deletedAt])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(PENDIENTE)
+  progress    Int           @default(0)
+  clientId    String
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  files         ProjectFile[]
+  conversations Conversation[]
+  activityLogs  ActivityLog[]
+
+  @@index([clientId, status, deletedAt])
+  @@index([status, deletedAt])
+  @@index([deletedAt])
+}
+
+model ProjectFile {
+  id           String   @id @default(cuid())
+  projectId    String
+  originalName String
+  key          String   @unique
+  mimeType     String
+  size         Int
+  category     String   @default("general")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, category, deletedAt])
+  @@index([projectId, deletedAt])
+  @@index([deletedAt])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  projectId String?
+  clientId  String
+  adminId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  project  Project?  @relation(fields: [projectId], references: [id])
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  admin    User?     @relation("AdminConversations", fields: [adminId], references: [id])
+  messages Message[]
+
+  @@index([clientId, updatedAt, deletedAt])
+  @@index([projectId, deletedAt])
+  @@index([deletedAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SenderMessages", fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt, deletedAt])
+  @@index([conversationId, read, deletedAt])
+  @@index([senderId])
+  @@index([deletedAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String?
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  projectId String?
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([projectId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+
+model BudgetRequest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  service   String
+  extras    String?
+  total     Float
+  message   String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email, createdAt])
+  @@index([createdAt])
+}

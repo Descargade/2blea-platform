@@ -1,0 +1,10 @@
+services:
+  app:
+    environment:
+      STORAGE_PROVIDER: cloudinary
+    env_file:
+      - .env.production
+
+  db:
+    profiles:
+      - dev

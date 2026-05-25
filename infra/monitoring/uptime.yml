@@ -1,0 +1,26 @@
+# 2bleA — Uptime Monitoring Config
+# Import this into UptimeRobot / Better Uptime / Checkly
+
+monitors:
+  - name: 2bleA Health
+    url: "https://2blea.com/api/health"
+    method: GET
+    interval: 300  # 5 minutes
+    timeout: 30
+    expected_status: 200
+    keywords:
+      - '"status":"ok"'
+
+  - name: 2bleA Landing
+    url: "https://2blea.com"
+    method: GET
+    interval: 300
+    timeout: 30
+    expected_status: 200
+
+  - name: 2bleA Login
+    url: "https://2blea.com/login"
+    method: GET
+    interval: 600
+    timeout: 30
+    expected_status: 200
