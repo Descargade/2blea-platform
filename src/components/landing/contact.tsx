@@ -6,7 +6,7 @@ import { MessageCircle, Mail } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const WHATSAPP_NUMBER = "2622540837";
+const WHATSAPP_NUMBER = "2622530837";
 const EMAIL = "gonzalezlucasaaron@gmail.com";
 
 export function ContactSection() {

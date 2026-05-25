@@ -1,5 +1,6 @@
-import { auth } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const CSP = [
   "default-src 'self'",
@@ -26,29 +27,35 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy": CSP,
 };
 
-export const proxy = auth((req) => {
-  const { pathname } = req.nextUrl;
-  const session = req.auth;
-  const isLoggedIn = !!session?.user;
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  // Auth redirects
+  // Auth redirects (using JWT token, Edge-safe)
   const isAdminRoute = pathname.startsWith("/admin");
   const isClientRoute = pathname.startsWith("/cliente");
   const isAuthRoute = pathname.startsWith("/login");
 
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  const isLoggedIn = !!token;
+  const role = token?.role as string | undefined;
+
   if (isAuthRoute && isLoggedIn) {
-    if (session.user.role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    if (role === "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
-    return NextResponse.redirect(new URL("/cliente/dashboard", req.url));
+    return NextResponse.redirect(new URL("/cliente/dashboard", request.url));
   }
 
-  if (isAdminRoute && (!isLoggedIn || session.user.role !== "ADMIN")) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (isAdminRoute && (!isLoggedIn || role !== "ADMIN")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isClientRoute && (!isLoggedIn || session.user.role !== "CLIENTE")) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (isClientRoute && (!isLoggedIn || role !== "CLIENTE")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   const response = NextResponse.next();
@@ -61,7 +68,7 @@ export const proxy = auth((req) => {
   }
 
   // CORS
-  const origin = req.headers.get("origin") ?? "";
+  const origin = request.headers.get("origin") ?? "";
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL,
     "http://localhost:3000",
@@ -75,13 +82,13 @@ export const proxy = auth((req) => {
     response.headers.set("Access-Control-Allow-Credentials", "true");
   }
 
-  if (req.method === "OPTIONS") {
+  if (request.method === "OPTIONS") {
     return new NextResponse(null, { status: 204, headers: response.headers });
   }
 
   return response;
-});
+}
 
 export const config = {
-  matcher: ["/admin/:path*", "/cliente/:path*", "/login", "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
+  matcher: ["/admin/:path*", "/cliente/:path*", "/login"],
 };
