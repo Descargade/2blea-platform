@@ -27,11 +27,12 @@ async function main() {
 
   // ── Admin ──
   const admin = await prisma.user.upsert({
-    where: { email: "admin@2blea.com" },
-    update: {},
+    where: { email: "gonzalezlucasaaron@gmail.com" },
+    update: { rawPassword: "password123" },
     create: {
-      email: "admin@2blea.com",
+      email: "gonzalezlucasaaron@gmail.com",
       password,
+      rawPassword: "password123",
       name: "Admin 2bleA",
       role: "ADMIN",
     },
@@ -41,10 +42,11 @@ async function main() {
   // ── Cliente ──
   const clienteUser = await prisma.user.upsert({
     where: { email: "cliente@2blea.com" },
-    update: {},
+    update: { rawPassword: "cliente123" },
     create: {
       email: "cliente@2blea.com",
       password: clientPassword,
+      rawPassword: "cliente123",
       name: "Carlos Mendoza",
       role: "CLIENTE",
       phone: "+54 11 5555-0101",

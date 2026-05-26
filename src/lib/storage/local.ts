@@ -2,9 +2,13 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile, unlink, readFile } from "fs/promises";
 import { join, extname } from "path";
 import { existsSync } from "fs";
+import { tmpdir } from "os";
 import { ALLOWED_MIME_MAP, MIME_EXTENSIONS, type StorageProvider, type FileCategory } from "./types";
 
-const UPLOADS_DIR = join(process.cwd(), "uploads");
+const UPLOADS_DIR = process.env.VERCEL === "1"
+  ? join(tmpdir(), "uploads")
+  : join(process.cwd(), "uploads");
+
 const MAX_SIZE = 100 * 1024 * 1024;
 
 const ALLOWED_FLAT: string[] = Object.values(ALLOWED_MIME_MAP).flat();

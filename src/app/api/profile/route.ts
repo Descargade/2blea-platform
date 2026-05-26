@@ -63,7 +63,7 @@ export async function GET() {
     const user = await requireAuth();
     const profile = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { id: true, name: true, email: true, role: true, image: true, phone: true },
+      select: { id: true, name: true, email: true, role: true, image: true, phone: true, rawPassword: true },
     });
     return success(profile);
   } catch (e) {

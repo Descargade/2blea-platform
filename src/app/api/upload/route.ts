@@ -67,10 +67,21 @@ export async function POST(req: Request) {
       },
     });
 
-    // Realtime
+    // Realtime — notify project channel AND client's user channel
     try {
-      await pusherServer.trigger(CHANNELS.project(projectId), EVENTS.FILE_UPLOADED, {
+      const channels = [CHANNELS.project(projectId)];
+      if (project.clientId) {
+        const projWithClient = await prisma.project.findFirst({
+          where: { id: projectId },
+          select: { client: { select: { userId: true } } },
+        });
+        if (projWithClient?.client?.userId) {
+          channels.push(CHANNELS.user(projWithClient.client.userId));
+        }
+      }
+      await pusherServer.trigger(channels, EVENTS.FILE_UPLOADED, {
         file: { ...projectFile, url },
+        projectId,
         userId: user.id,
         userName: user.name,
       });

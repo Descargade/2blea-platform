@@ -50,7 +50,7 @@ export default function LoginPage() {
           </form>
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-xs text-gray-500 text-center">
-              Demo: admin@2blea.com / cliente@2blea.com<br />Contraseña: password123
+              Demo: gonzalezlucasaaron@gmail.com / cliente@2blea.com<br />Contraseña: password123
             </p>
           </div>
         </div>

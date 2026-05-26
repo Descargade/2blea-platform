@@ -21,16 +21,17 @@ enum ProjectStatus {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String
-  role      Role      @default(CLIENTE)
-  phone     String?
-  image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  rawPassword String?
+  name        String
+  role        Role      @default(CLIENTE)
+  phone       String?
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   client        Client?
   conversations Conversation[] @relation("AdminConversations")

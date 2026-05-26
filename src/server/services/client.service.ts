@@ -49,6 +49,7 @@ export const clientService = {
       data: {
         email: data.email,
         password: hashedPassword,
+        rawPassword,
         name: data.name,
         role: "CLIENTE",
         phone: data.phone || null,
@@ -95,6 +96,20 @@ export const clientService = {
     });
     dbLogger.info({ clientId: id }, "Cliente actualizado");
     return updated;
+  },
+
+  async regeneratePassword(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundError("Usuario no encontrado");
+
+    const rawPassword = generatePassword();
+    const hashedPassword = bcrypt.hashSync(rawPassword, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword, rawPassword },
+    });
+    dbLogger.info({ userId }, "Contraseña regenerada");
+    return rawPassword;
   },
 
   async softDelete(id: string) {

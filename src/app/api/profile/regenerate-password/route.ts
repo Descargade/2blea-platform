@@ -20,7 +20,7 @@ export async function POST() {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { password: hashedPassword },
+      data: { password: hashedPassword, rawPassword },
     });
 
     dbLogger.info({ userId: user.id }, "Contraseña regenerada");
