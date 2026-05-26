@@ -12,8 +12,9 @@ async function run() {
     `ALTER TABLE "Project" ALTER COLUMN "status" SET DEFAULT 'CONSULTA'`,
   ];
 
+  const dbUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
   for (const sql of statements) {
-    const prisma = new PrismaClient();
+    const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
     try {
       await prisma.$executeRawUnsafe(sql);
       console.log(`✅ ${sql.substring(0, 70)}`);
