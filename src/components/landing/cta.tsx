@@ -63,7 +63,7 @@ export function CTASection() {
             </svg>
           </a>
           <a
-            href={`https://wa.me/2622530837`}
+            href={`https://wa.me/5492622530837`}
             target="_blank"
             rel="noopener noreferrer"
             className="premium-button-outline text-lg px-10 py-4"

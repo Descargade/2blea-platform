@@ -14,7 +14,7 @@ export function Footer() {
 
           <div className="flex items-center gap-6 text-sm text-gray-500">
             <a
-              href={`https://wa.me/2622530837`}
+              href={`https://wa.me/5492622530837`}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-premium-accent transition-colors"
