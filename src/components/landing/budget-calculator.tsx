@@ -78,16 +78,39 @@ export function BudgetCalculator() {
       return res.data;
     },
     onSuccess: (_, variables) => {
-      const serviceName = selectedServiceData?.name ?? variables.service;
+      const svcName = selectedServiceData?.name ?? variables.service;
       const extrasList = selectedExtras
         .map((id) => selectedServiceData?.extras?.find((e) => e.id === id)?.name)
         .filter(Boolean)
         .join(", ");
+      const includedList = INCLUDED_EXTRAS[svcName]?.join(", ") ?? "";
+
       const waMessage = encodeURIComponent(
-        `¡Hola! Quiero contratar:\n\n*Servicio:* ${serviceName}\n*Extras:* ${extrasList || "Ninguno"}\n*Total:* $${variables.total.toLocaleString("es-AR")}\n\n*Nombre:* ${variables.name}\n*Email:* ${variables.email}\n*Teléfono:* ${variables.phone}\n*Mensaje:* ${variables.message ?? "Sin mensaje"}`
+        `¡Hola! Quiero contratar:\n\n` +
+        `*Servicio:* ${svcName}\n` +
+        `*Incluye:* ${includedList || "Ninguno"}\n` +
+        `*Extras:* ${extrasList || "Ninguno"}\n` +
+        `*Total:* $${variables.total.toLocaleString("es-AR")}\n\n` +
+        `*Nombre:* ${variables.name}\n` +
+        `*Email:* ${variables.email}\n` +
+        `*Teléfono:* ${variables.phone || "No especificado"}\n` +
+        `*Mensaje:* ${variables.message || "Sin mensaje"}`
       );
+
+      const emailBody = encodeURIComponent(
+        `¡Hola! Quiero contratar:\n\n` +
+        `Servicio: ${svcName}\n` +
+        `Incluye: ${includedList || "Ninguno"}\n` +
+        `Extras: ${extrasList || "Ninguno"}\n` +
+        `Total: $${variables.total.toLocaleString("es-AR")}\n\n` +
+        `Nombre: ${variables.name}\n` +
+        `Email: ${variables.email}\n` +
+        `Teléfono: ${variables.phone || "No especificado"}\n` +
+        `Mensaje: ${variables.message || "Sin mensaje"}`
+      );
+
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`, "_blank");
-      window.open(`mailto:${BUDGET_EMAIL}?subject=Presupuesto 2bleA - ${serviceName}&body=${waMessage.replace(/\*/g, "").replace(/%0A/g, "%0D%0A")}`, "_blank");
+      window.open(`mailto:${BUDGET_EMAIL}?subject=Presupuesto 2bleA - ${svcName}&body=${emailBody}`, "_blank");
       form.reset();
       setSelectedService(null);
       setSelectedExtras([]);
