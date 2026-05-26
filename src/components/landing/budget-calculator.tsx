@@ -359,10 +359,10 @@ export function BudgetCalculator() {
                     </span>
                   </div>
 
-                  {INCLUDED_EXTRAS[svc.name]?.length > 0 && (
+                  {Boolean(INCLUDED_EXTRAS[svc.name]?.length) && (
                     <div className="space-y-1 pb-4 border-b border-white/10">
                       <p className="text-sm text-green-400">✓ Incluye</p>
-                      {INCLUDED_EXTRAS[svc.name].map((name) => (
+                      {INCLUDED_EXTRAS[svc.name]?.map((name) => (
                         <div key={name} className="flex justify-between text-sm text-green-400/70">
                           <span>{name}</span>
                           <span className="text-green-400/50">Incluido</span>
