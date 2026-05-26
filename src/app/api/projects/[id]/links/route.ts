@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 import { success, created, error } from "@/lib/api-response";
+import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
 import { z } from "zod";
 
 const linkSchema = z.object({
@@ -30,7 +31,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    const user = await requireAdmin();
     const { id } = await params;
     const body = await req.json();
     const data = linkSchema.parse(body);
@@ -38,6 +39,24 @@ export async function POST(
     const link = await prisma.projectLink.create({
       data: { projectId: id, url: data.url, title: data.title },
     });
+
+    const project = await prisma.project.findFirst({
+      where: { id, deletedAt: null },
+      select: { name: true, client: { select: { userId: true } } },
+    });
+
+    if (project) {
+      try {
+        const channels = [CHANNELS.project(id), CHANNELS.user(project.client.userId)];
+        await pusherServer.trigger(channels, EVENTS.PROJECT_UPDATED, {
+          projectId: id,
+          projectName: project.name,
+          link: { title: data.title, url: data.url },
+          userId: user.id,
+        });
+      } catch { /* silent */ }
+    }
+
     return created(link, "Link agregado correctamente");
   } catch (e) {
     return error(e, "Error al agregar link");

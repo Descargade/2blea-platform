@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 import { success, created, error } from "@/lib/api-response";
+import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
 import { z } from "zod";
 
 const paymentSchema = z.object({
@@ -26,7 +27,10 @@ export async function POST(
       },
     });
 
-    const project = await prisma.project.findFirst({ where: { id, deletedAt: null } });
+    const project = await prisma.project.findFirst({
+      where: { id, deletedAt: null },
+      include: { client: { select: { userId: true } } },
+    });
     if (project) {
       const newTotal = (project.totalPaid ?? 0) + data.amount;
       await prisma.project.update({ where: { id }, data: { totalPaid: newTotal } });
@@ -39,6 +43,17 @@ export async function POST(
           details: `Pago de $${data.amount} registrado${data.note ? `: ${data.note}` : ""}`,
         },
       });
+
+      try {
+        const channels = [CHANNELS.project(id), CHANNELS.user(project.client.userId)];
+        await pusherServer.trigger(channels, EVENTS.PROJECT_UPDATED, {
+          projectId: id,
+          projectName: project.name,
+          totalPaid: newTotal,
+          amount: data.amount,
+          userId: user.id,
+        });
+      } catch { /* silent */ }
     }
 
     return created(payment, "Pago registrado correctamente");

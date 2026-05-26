@@ -167,6 +167,41 @@ export function useRealtimeMessages(
   }, [pusher, userId, channel, qc]);
 }
 
+export function useRealtimeProjectUpdates(userId: string) {
+  const { pusher, subscribe, unsubscribe } = usePusher();
+  const qc = useQueryClient();
+  const subRef = useRef(subscribe);
+  const unsubRef = useRef(unsubscribe);
+  useEffect(() => { subRef.current = subscribe; });
+  useEffect(() => { unsubRef.current = unsubscribe; });
+
+  const channel = `private-user-${userId}`;
+
+  useEffect(() => {
+    if (!pusher || !userId) return;
+    subRef.current(channel);
+    return () => unsubRef.current(channel);
+  }, [pusher, userId, channel]);
+
+  useEffect(() => {
+    if (!pusher || !userId) return;
+    const ch = pusher.channel(channel);
+    if (!ch) return;
+
+    const invalidateProjects = () => {
+      qc.invalidateQueries({ queryKey: ["projects"] });
+    };
+
+    ch.bind("project-updated", invalidateProjects);
+    ch.bind("file-uploaded", invalidateProjects);
+
+    return () => {
+      ch.unbind("project-updated", invalidateProjects);
+      ch.unbind("file-uploaded", invalidateProjects);
+    };
+  }, [pusher, userId, channel, qc]);
+}
+
 export function useRealtimeActivity(
   projectId: string | undefined,
   onActivity?: ActivityHandler

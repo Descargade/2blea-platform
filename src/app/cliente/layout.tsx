@@ -59,7 +59,7 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
               Configuración
             </Link>
             <a
-              href="https://2blea.vercel.app"
+              href="/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-sm text-premium-accent hover:text-premium-accent/80 transition-colors"
