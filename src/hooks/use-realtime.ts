@@ -190,14 +190,17 @@ export function useRealtimeProjectUpdates(userId: string) {
 
     const invalidateProjects = () => {
       qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["project"] });
     };
 
     ch.bind("project-updated", invalidateProjects);
     ch.bind("file-uploaded", invalidateProjects);
+    ch.bind("file-deleted", invalidateProjects);
 
     return () => {
       ch.unbind("project-updated", invalidateProjects);
       ch.unbind("file-uploaded", invalidateProjects);
+      ch.unbind("file-deleted", invalidateProjects);
     };
   }, [pusher, userId, channel, qc]);
 }

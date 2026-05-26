@@ -8,7 +8,16 @@ const providers: Record<StorageProviderType, StorageProvider> = {
 };
 
 function getProviderType(): StorageProviderType {
-  return (process.env.STORAGE_PROVIDER as StorageProviderType) ?? "local";
+  const configured = process.env.STORAGE_PROVIDER as StorageProviderType;
+  if (configured === "cloudinary") return "cloudinary";
+
+  const cloudAvailable =
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET;
+  if (cloudAvailable) return "cloudinary";
+
+  return "local";
 }
 
 export const storage: StorageProvider = new Proxy({} as StorageProvider, {
