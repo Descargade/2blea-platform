@@ -236,8 +236,8 @@ export function BudgetCalculator() {
             </div>
 
             {(() => {
-              if (!selectedServiceData) return null;
               const service = selectedServiceData;
+              if (!service) return null;
               return (
               <AnimatePresence>
                 <motion.div
@@ -286,7 +286,7 @@ export function BudgetCalculator() {
                     </>
                   )}
 
-                  {INCLUDED_EXTRAS[service.name]?.length > 0 && (
+                  {Boolean(INCLUDED_EXTRAS[service.name]?.length) && (
                     <div className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
                       <p className="text-sm text-green-400 mb-2">✓ Incluidos en el servicio:</p>
                       <div className="flex flex-wrap gap-2">
