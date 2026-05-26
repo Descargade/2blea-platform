@@ -7,6 +7,7 @@ import { useConversations } from "@/hooks/queries/use-messages";
 import { useOffers } from "@/hooks/queries/use-offers";
 import { StatsGridSkeleton } from "@/components/shared/loading";
 import { ErrorState } from "@/components/shared/error-state";
+import { BarChart3, TrendingUp } from "lucide-react";
 import type { ProjectItem, ConversationItem, OfferItem, ClientListItem } from "@/types";
 
 export default function AdminDashboard() {
@@ -25,6 +26,13 @@ export default function AdminDashboard() {
   const mList = (Array.isArray(convs) ? convs : []) as ConversationItem[];
   const oList = (Array.isArray(offers) ? offers : []) as OfferItem[];
 
+  const totalRevenue = pList.reduce((acc, p) => acc + (p.totalPaid ?? 0), 0);
+  const pendingPayments = pList.reduce((acc, p) => {
+    const paid = p.totalPaid ?? 0;
+    const cost = p.cost ?? 0;
+    return acc + Math.max(0, cost - paid);
+  }, 0);
+
   const stats = {
     totalClients: cList.length,
     activeProjects: pList.filter((p) => p.status !== "FINALIZADO" && p.status !== "ENTREGADO").length,
@@ -32,6 +40,8 @@ export default function AdminDashboard() {
       return acc + (conv.messages?.filter((m) => !m.read).length || 0);
     }, 0),
     activeOffers: oList.filter((o) => o.active).length,
+    totalRevenue,
+    pendingPayments,
   };
 
   if (isError) return <ErrorState message="Error al cargar estadísticas" onRetry={refetch} />;
@@ -43,19 +53,39 @@ export default function AdminDashboard() {
         <p className="text-gray-400">Bienvenido, {session?.user?.name}</p>
       </div>
       {isLoading ? <StatsGridSkeleton /> : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[
-            { label: "Clientes totales", value: stats.totalClients, color: "text-premium-accent" },
-            { label: "Proyectos activos", value: stats.activeProjects, color: "text-blue-400" },
-            { label: "Mensajes no leídos", value: stats.unreadMessages, color: "text-yellow-400" },
-            { label: "Ofertas activas", value: stats.activeOffers, color: "text-green-400" },
-          ].map((s) => (
-            <div key={s.label} className="premium-card" role="status" aria-label={s.label}>
-              <p className="text-gray-400 text-sm mb-2">{s.label}</p>
-              <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[
+              { label: "Clientes totales", value: stats.totalClients, color: "text-premium-accent" },
+              { label: "Proyectos activos", value: stats.activeProjects, color: "text-blue-400" },
+              { label: "Mensajes no leídos", value: stats.unreadMessages, color: "text-yellow-400" },
+              { label: "Ofertas activas", value: stats.activeOffers, color: "text-green-400" },
+            ].map((s) => (
+              <div key={s.label} className="premium-card" role="status" aria-label={s.label}>
+                <p className="text-gray-400 text-sm mb-2">{s.label}</p>
+                <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="premium-card" role="status" aria-label="Ingresos totales">
+              <div className="flex items-center gap-3 mb-2">
+                <TrendingUp className="w-5 h-5 text-green-400" />
+                <p className="text-gray-400 text-sm">Ingresos totales</p>
+              </div>
+              <p className="text-3xl font-bold text-green-400">${stats.totalRevenue.toLocaleString("es-AR")}</p>
+              <p className="text-xs text-gray-600 mt-1">Suma de todos los pagos registrados</p>
             </div>
-          ))}
-        </div>
+            <div className="premium-card" role="status" aria-label="Pagos pendientes">
+              <div className="flex items-center gap-3 mb-2">
+                <BarChart3 className="w-5 h-5 text-yellow-400" />
+                <p className="text-gray-400 text-sm">Pendiente de cobro</p>
+              </div>
+              <p className="text-3xl font-bold text-yellow-400">${stats.pendingPayments.toLocaleString("es-AR")}</p>
+              <p className="text-xs text-gray-600 mt-1">Saldo total pendiente sobre proyectos</p>
+            </div>
+          </div>
+        </>
       )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="premium-card">

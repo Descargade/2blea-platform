@@ -28,7 +28,16 @@ export function useProject(id: string) {
 export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; description?: string; clientId: string }) => {
+    mutationFn: async (input: {
+      name: string;
+      description?: string;
+      clientId: string;
+      serviceId?: string;
+      cost?: number;
+      extras?: Array<{ id: string; name: string; price: number }>;
+      startDate?: string;
+      endDate?: string;
+    }) => {
       const { data } = await api.post("/projects", input);
       return data.data ?? data;
     },
@@ -39,7 +48,17 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...input }: { id: string; name?: string; description?: string; status?: string; progress?: number; startDate?: string; endDate?: string }) => {
+    mutationFn: async ({ id, ...input }: {
+      id: string;
+      name?: string;
+      description?: string;
+      status?: string;
+      progress?: number;
+      cost?: number;
+      totalPaid?: number;
+      startDate?: string;
+      endDate?: string;
+    }) => {
       const { data } = await api.put(`/projects/${id}`, input);
       return data.data ?? data;
     },

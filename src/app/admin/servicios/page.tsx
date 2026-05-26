@@ -1,19 +1,24 @@
 "use client";
 import { useState } from "react";
-import { useServices, useUpdateService } from "@/hooks/queries/use-services";
+import { useServices, useUpdateService, useCreateService } from "@/hooks/queries/use-services";
 import { PageHeader } from "@/components/shared/page-header";
 import { CardSkeleton } from "@/components/shared/loading";
 import { ErrorState } from "@/components/shared/error-state";
 import { Modal } from "@/components/shared/modal";
 import type { ServiceItem } from "@/types";
-import { Edit2 } from "lucide-react";
+import { Edit2, Plus } from "lucide-react";
 
 export default function AdminServicios() {
   const [editing, setEditing] = useState<ServiceItem | null>(null);
   const [editPrice, setEditPrice] = useState(0);
   const [editActive, setEditActive] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newPrice, setNewPrice] = useState(0);
   const { data: services, isLoading, isError, refetch } = useServices();
   const updateMutation = useUpdateService();
+  const createMutation = useCreateService();
 
   const list: ServiceItem[] = Array.isArray(services) ? services : [];
 
@@ -29,23 +34,58 @@ export default function AdminServicios() {
     setEditing(null);
   }
 
+  async function handleCreate() {
+    if (!newName.trim()) return;
+    await createMutation.mutateAsync({ name: newName.trim(), description: newDesc.trim(), basePrice: newPrice });
+    setShowCreate(false);
+    setNewName("");
+    setNewDesc("");
+    setNewPrice(0);
+  }
+
   if (isError) return <ErrorState message="Error al cargar servicios" onRetry={refetch} />;
 
   return (
     <div>
-      <PageHeader title="Servicios" description={`${list.length} servicios disponibles`} />
+      <PageHeader
+        title="Servicios"
+        description={`${list.length} servicios disponibles`}
+        action={
+          <button onClick={() => setShowCreate(true)} className="premium-button text-sm flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Nuevo servicio
+          </button>
+        }
+      />
+
+      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Nuevo servicio">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Nombre</label>
+            <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} className="premium-input w-full" placeholder="Nombre del servicio" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Descripción</label>
+            <textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} className="premium-input w-full h-20 resize-none" placeholder="Descripción del servicio" />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Precio base</label>
+            <input type="number" min={0} value={newPrice} onChange={(e) => setNewPrice(Number(e.target.value))} className="premium-input w-full" />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={() => setShowCreate(false)} className="premium-button-outline text-sm">Cancelar</button>
+            <button onClick={handleCreate} disabled={createMutation.isPending || !newName.trim()} className="premium-button text-sm">
+              {createMutation.isPending ? "Guardando..." : "Crear servicio"}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title={`Editar: ${editing?.name}`}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Precio base</label>
-            <input
-              type="number"
-              min={0}
-              value={editPrice}
-              onChange={(e) => setEditPrice(Number(e.target.value))}
-              className="premium-input w-full"
-            />
+            <input type="number" min={0} value={editPrice} onChange={(e) => setEditPrice(Number(e.target.value))} className="premium-input w-full" />
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input type="checkbox" checked={editActive} onChange={(e) => setEditActive(e.target.checked)} className="accent-premium-violet" />

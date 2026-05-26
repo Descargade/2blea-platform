@@ -5,13 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProjects, useCreateProject } from "@/hooks/queries/use-projects";
 import { useClients } from "@/hooks/queries/use-clients";
+import { useServices } from "@/hooks/queries/use-services";
 import { PageHeader } from "@/components/shared/page-header";
 import { TableSkeleton } from "@/components/shared/loading";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Modal } from "@/components/shared/modal";
 import { projectCreateSchema, type ProjectCreateInput } from "@/lib/validations";
-import type { ProjectItem } from "@/types";
+import type { ProjectItem, ExtraItem, ServiceItem } from "@/types";
 import { FolderKanban, Plus } from "lucide-react";
 
 const statusStyles: Record<string, string> = {
@@ -34,16 +35,52 @@ export default function AdminProyectos() {
   const [showModal, setShowModal] = useState(false);
   const { data: projects, isLoading, isError, refetch } = useProjects();
   const { data: clients } = useClients();
+  const { data: services } = useServices();
   const createMutation = useCreateProject();
+
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  const [selectedExtras, setSelectedExtras] = useState<ExtraItem[]>([]);
+  const [cost, setCost] = useState(0);
 
   const form = useForm<ProjectCreateInput>({
     resolver: zodResolver(projectCreateSchema),
-    defaultValues: { name: "", description: "", clientId: "" },
+    defaultValues: { name: "", description: "", clientId: "", startDate: "", endDate: "" },
   });
 
-  async function onSubmit(data: ProjectCreateInput) {
-    await createMutation.mutateAsync(data);
+  const serviceList = (Array.isArray(services) ? services : []) as ServiceItem[];
+  const currentService = serviceList.find((s) => s.id === selectedServiceId);
+
+  function handleServiceChange(id: string) {
+    setSelectedServiceId(id);
+    setSelectedExtras([]);
+    const svc = serviceList.find((s) => s.id === id);
+    if (svc) setCost(svc.basePrice);
+  }
+
+  function toggleExtra(extra: ExtraItem) {
+    setSelectedExtras((prev) => {
+      const exists = prev.find((e) => e.id === extra.id);
+      if (exists) return prev.filter((e) => e.id !== extra.id);
+      return [...prev, extra];
+    });
+  }
+
+  function resetForm() {
     form.reset();
+    setSelectedServiceId("");
+    setSelectedExtras([]);
+    setCost(0);
+  }
+
+  async function onSubmit(data: ProjectCreateInput) {
+    const extraCost = selectedExtras.reduce((sum, e) => sum + e.price, 0);
+    await createMutation.mutateAsync({
+      ...data,
+      serviceId: selectedServiceId || undefined,
+      cost: cost + extraCost || undefined,
+      extras: selectedExtras.length > 0 ? selectedExtras : undefined,
+    });
+    resetForm();
     setShowModal(false);
   }
 
@@ -65,7 +102,7 @@ export default function AdminProyectos() {
         }
       />
 
-      <Modal open={showModal} onClose={() => { setShowModal(false); form.reset(); }} title="Nuevo proyecto">
+      <Modal open={showModal} onClose={() => { setShowModal(false); resetForm(); }} title="Nuevo proyecto">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Nombre</label>
@@ -86,8 +123,50 @@ export default function AdminProyectos() {
             </select>
             {form.formState.errors.clientId && <p className="text-red-400 text-xs mt-1">{form.formState.errors.clientId.message}</p>}
           </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Servicio</label>
+            <select value={selectedServiceId} onChange={(e) => handleServiceChange(e.target.value)} className="premium-input w-full">
+              <option value="">Sin servicio</option>
+              {serviceList.map((s) => (
+                <option key={s.id} value={s.id}>{s.name} (${s.basePrice.toLocaleString("es-AR")})</option>
+              ))}
+            </select>
+          </div>
+          {currentService && currentService.extras && currentService.extras.length > 0 && (
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Extras</label>
+              <div className="space-y-2">
+                {currentService.extras.map((extra) => (
+                  <label key={extra.id} className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedExtras.some((e) => e.id === extra.id)}
+                      onChange={() => toggleExtra(extra)}
+                      className="accent-premium-violet"
+                    />
+                    <span>{extra.name}</span>
+                    <span className="text-gray-500 ml-auto">${extra.price.toLocaleString("es-AR")}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Costo total ($)</label>
+            <input type="number" min={0} value={cost + selectedExtras.reduce((s, e) => s + e.price, 0)} onChange={(e) => setCost(Number(e.target.value))} className="premium-input w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Fecha inicio</label>
+              <input type="date" {...form.register("startDate")} className="premium-input w-full" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Fecha fin</label>
+              <input type="date" {...form.register("endDate")} className="premium-input w-full" />
+            </div>
+          </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={() => { setShowModal(false); form.reset(); }} className="premium-button-outline text-sm">Cancelar</button>
+            <button type="button" onClick={() => { setShowModal(false); resetForm(); }} className="premium-button-outline text-sm">Cancelar</button>
             <button type="submit" disabled={createMutation.isPending} className="premium-button text-sm">
               {createMutation.isPending ? "Guardando..." : "Crear proyecto"}
             </button>
@@ -105,8 +184,10 @@ export default function AdminProyectos() {
                 <tr className="border-b border-white/10 text-left text-sm text-gray-400">
                   <th className="p-4 font-medium" scope="col">Proyecto</th>
                   <th className="p-4 font-medium" scope="col">Cliente</th>
+                  <th className="p-4 font-medium" scope="col">Servicio</th>
                   <th className="p-4 font-medium" scope="col">Estado</th>
                   <th className="p-4 font-medium" scope="col">Progreso</th>
+                  <th className="p-4 font-medium" scope="col">Costo</th>
                   <th className="p-4 font-medium" scope="col">Fecha</th>
                 </tr>
               </thead>
@@ -119,6 +200,7 @@ export default function AdminProyectos() {
                       </Link>
                     </td>
                     <td className="p-4 text-gray-400">{p.client?.user?.name || "---"}</td>
+                    <td className="p-4 text-gray-400">{p.service?.name || "---"}</td>
                     <td className="p-4">
                       <span className={`text-xs px-2 py-1 rounded-full border ${statusStyles[p.status] || ""}`}>
                         {statusLabels[p.status] || p.status}
@@ -131,6 +213,9 @@ export default function AdminProyectos() {
                         </div>
                         <span className="text-sm text-gray-400 w-8 text-right">{p.progress}%</span>
                       </div>
+                    </td>
+                    <td className="p-4 text-gray-400">
+                      {p.cost ? `$${p.cost.toLocaleString("es-AR")}` : "---"}
                     </td>
                     <td className="p-4 text-gray-400 text-sm">{p.createdAt ? new Date(p.createdAt).toLocaleDateString("es-AR") : "---"}</td>
                   </tr>

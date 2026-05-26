@@ -1,8 +1,22 @@
-import { requireAdmin } from "@/lib/guards";
+import { requireAuth, requireAdmin } from "@/lib/guards";
 import { projectService } from "@/server/services/project.service";
 import { projectUpdateSchema } from "@/lib/validations";
 import { success, error } from "@/lib/api-response";
 import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth();
+    const { id } = await params;
+    const project = await projectService.findById(id);
+    return success(project);
+  } catch (e) {
+    return error(e, "Error al obtener proyecto");
+  }
+}
 
 export async function PUT(
   req: Request,
@@ -15,7 +29,6 @@ export async function PUT(
     const data = projectUpdateSchema.parse(body);
     const project = await projectService.update(id, data, user.id);
 
-    // Realtime
     try {
       await pusherServer.trigger(CHANNELS.project(id), EVENTS.PROJECT_UPDATED, {
         project: { id: project.id, name: project.name, status: project.status, progress: project.progress },

@@ -27,6 +27,13 @@ export interface ClientListItem {
   company?: string | null;
   phone?: string | null;
   user?: ClientUser | null;
+  createdAt?: string;
+}
+
+export interface ClientDetail extends ClientListItem {
+  address?: string | null;
+  notes?: string | null;
+  projects?: ProjectItem[];
 }
 
 export interface ExtraItem {
@@ -72,17 +79,41 @@ export interface ProjectClient {
   user?: { id: string; name: string; email: string } | null;
 }
 
+export interface ProjectLink {
+  id: string;
+  projectId: string;
+  url: string;
+  title: string;
+  createdAt: string;
+}
+
+export interface ProjectPayment {
+  id: string;
+  projectId: string;
+  amount: number;
+  date: string;
+  note?: string | null;
+  createdAt: string;
+}
+
 export interface ProjectItem {
   id: string;
   name: string;
   description?: string | null;
   status: ProjectStatus;
   progress: number;
+  cost?: number | null;
+  totalPaid: number;
+  serviceId?: string | null;
+  service?: { id: string; name: string } | null;
+  extras?: Array<{ id: string; name: string; price: number }> | null;
   startDate?: string | null;
   endDate?: string | null;
   createdAt: string;
   client?: ProjectClient | null;
   files?: ProjectFile[];
+  links?: ProjectLink[];
+  payments?: ProjectPayment[];
   activityLogs?: ActivityLogItem[];
 }
 
@@ -116,4 +147,6 @@ export interface DashboardStats {
   activeProjects: number;
   unreadMessages: number;
   activeOffers: number;
+  totalRevenue: number;
+  pendingPayments: number;
 }

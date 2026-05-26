@@ -8,6 +8,7 @@ import { PusherProvider } from "@/components/shared/pusher-provider";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { PageTransition } from "@/components/shared/page-transition";
 import { RealtimeSubscriber } from "./realtime-subscriber";
+import { ExternalLink, Settings } from "lucide-react";
 
 const NotificationDropdown = dynamic(() => import("@/components/shared/notification-dropdown").then((m) => ({ default: m.NotificationDropdown })), { ssr: false });
 const RealtimeToasts = dynamic(() => import("@/components/shared/realtime-toast").then((m) => ({ default: m.RealtimeToasts })), { ssr: false });
@@ -49,6 +50,23 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
             >
               Mensajes
             </Link>
+            <Link
+              href="/cliente/configuracion"
+              className={`flex items-center gap-1 text-sm transition-colors ${pathname === "/cliente/configuracion" ? "text-white" : "text-gray-400 hover:text-white"}`}
+              aria-current={pathname === "/cliente/configuracion" ? "page" : undefined}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Configuración
+            </Link>
+            <a
+              href="https://2blea.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-sm text-premium-accent hover:text-premium-accent/80 transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Presupuestos
+            </a>
             <NotificationDropdown />
             <Link href="/api/auth/signout" className="text-sm text-gray-400 hover:text-white transition-colors">
               Cerrar sesión

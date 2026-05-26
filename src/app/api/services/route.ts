@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/guards";
 import { serviceService } from "@/server/services/service.service";
-import { serviceUpdateSchema } from "@/lib/validations";
-import { success, error } from "@/lib/api-response";
+import { serviceUpdateSchema, serviceCreateSchema } from "@/lib/validations";
+import { success, created, error } from "@/lib/api-response";
 
 export async function GET() {
   try {
@@ -9,6 +9,18 @@ export async function GET() {
     return success(services);
   } catch (e) {
     return error(e);
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    await requireAdmin();
+    const body = await req.json();
+    const data = serviceCreateSchema.parse(body);
+    const service = await serviceService.create(data);
+    return created(service, "Servicio creado correctamente");
+  } catch (e) {
+    return error(e, "Error al crear servicio");
   }
 }
 

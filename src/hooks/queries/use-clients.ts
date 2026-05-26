@@ -14,6 +14,17 @@ export function useClients() {
   });
 }
 
+export function useClient(id: string) {
+  return useQuery({
+    queryKey: ["client", id],
+    queryFn: async () => {
+      const { data } = await api.get(`/clients/${id}`);
+      return data.data ?? data;
+    },
+    enabled: !!id,
+  });
+}
+
 export function useCreateClient() {
   const qc = useQueryClient();
   return useMutation({
@@ -22,6 +33,19 @@ export function useCreateClient() {
       return data.data ?? data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }),
+  });
+}
+
+export function useUpdateClient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...input }: { id: string; name?: string; email?: string; phone?: string; company?: string; address?: string; notes?: string }) => {
+      const { data } = await api.put(`/clients/${id}`, input);
+      return data.data ?? data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    },
   });
 }
 

@@ -24,3 +24,14 @@ export function useUpdateService() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
   });
 }
+
+export function useCreateService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { name: string; description?: string; basePrice: number }) => {
+      const { data } = await api.post("/services", input);
+      return data.data ?? data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["services"] }),
+  });
+}

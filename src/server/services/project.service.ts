@@ -13,7 +13,10 @@ export const projectService = {
           client: {
             include: { user: { select: { id: true, name: true, email: true } } },
           },
+          service: { select: { id: true, name: true } },
           files: true,
+          links: { orderBy: { createdAt: "desc" } },
+          payments: { orderBy: { date: "desc" } },
         },
         orderBy: { createdAt: "desc" },
       });
@@ -22,7 +25,12 @@ export const projectService = {
     if (!client) return [];
     return prisma.project.findMany({
       where: { clientId: client.id, deletedAt: null },
-      include: { files: true },
+      include: {
+        service: { select: { id: true, name: true } },
+        files: true,
+        links: { orderBy: { createdAt: "desc" } },
+        payments: { orderBy: { date: "desc" } },
+      },
       orderBy: { createdAt: "desc" },
     });
   },
@@ -32,7 +40,10 @@ export const projectService = {
       where: { id, deletedAt: null },
       include: {
         client: { include: { user: { select: { id: true, name: true, email: true } } } },
+        service: { select: { id: true, name: true } },
         files: true,
+        links: { orderBy: { createdAt: "desc" } },
+        payments: { orderBy: { date: "desc" } },
         activityLogs: { orderBy: { createdAt: "desc" }, take: 20 },
       },
     });
@@ -46,6 +57,9 @@ export const projectService = {
         name: data.name,
         description: data.description || null,
         clientId: data.clientId,
+        serviceId: data.serviceId || null,
+        cost: data.cost || null,
+        extras: data.extras || undefined,
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
       },
@@ -66,16 +80,19 @@ export const projectService = {
     const project = await prisma.project.findFirst({ where: { id, deletedAt: null } });
     if (!project) throw new NotFoundError("Proyecto no encontrado");
 
+    const updateData: Record<string, unknown> = {};
+    if (data.name) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.status) updateData.status = data.status;
+    if (data.progress !== undefined) updateData.progress = data.progress;
+    if (data.cost !== undefined) updateData.cost = data.cost;
+    if (data.totalPaid !== undefined) updateData.totalPaid = data.totalPaid;
+    if (data.startDate) updateData.startDate = new Date(data.startDate);
+    if (data.endDate) updateData.endDate = new Date(data.endDate);
+
     const updated = await prisma.project.update({
       where: { id },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.status && { status: data.status }),
-        ...(data.progress !== undefined && { progress: data.progress }),
-        ...(data.startDate && { startDate: new Date(data.startDate) }),
-        ...(data.endDate && { endDate: new Date(data.endDate) }),
-      },
+      data: updateData,
     });
 
     if (data.status && data.status !== project.status) {

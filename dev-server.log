@@ -48,3 +48,4 @@ Error: Both middleware file "./src\middleware.ts" and proxy file "./src\proxy.ts
   · serverActions
 
 ✓ Compiled in 645ms
+✓ Compiled in 390ms
