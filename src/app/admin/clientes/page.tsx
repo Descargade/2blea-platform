@@ -63,12 +63,24 @@ export default function AdminClientes() {
     setEditing(null);
   }
 
+  async function handleViewPassword(clientId: string) {
+    setPwClientId(clientId);
+    setPwValue("");
+    setRevealPw(false);
+    setCopied(false);
+    try {
+      const { data: res } = await api.get(`/clients/${clientId}/regenerate-password`);
+      setPwValue(res?.data?.rawPassword || "No disponible");
+    } catch {
+      setPwValue("Error al obtener");
+    }
+  }
+
   async function handleRegeneratePassword(clientId: string) {
     setRegeneratingPw(true);
     try {
       const { data: res } = await api.post(`/clients/${clientId}/regenerate-password`);
       const pw = res?.data?.rawPassword || "";
-      setPwClientId(clientId);
       setPwValue(pw);
       setCopied(false);
     } catch {
@@ -264,7 +276,7 @@ export default function AdminClientes() {
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => { setPwClientId(client.id); setPwValue(""); setRevealPw(false); setCopied(false); handleRegeneratePassword(client.id); }}
+                          onClick={() => handleViewPassword(client.id)}
                           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
                           aria-label="Ver contraseña"
                           title="Ver contraseña"

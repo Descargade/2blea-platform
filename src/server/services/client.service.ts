@@ -98,6 +98,12 @@ export const clientService = {
     return updated;
   },
 
+  async getPassword(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundError("Usuario no encontrado");
+    return { rawPassword: user.rawPassword, email: user.email };
+  },
+
   async regeneratePassword(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError("Usuario no encontrado");
