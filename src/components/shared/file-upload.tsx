@@ -70,7 +70,14 @@ export function FileUpload({ projectId, onSuccess }: FileUploadProps) {
       await new Promise<void>((resolve, reject) => {
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) resolve();
-          else reject(new Error("Error al subir archivo"));
+          else {
+            try {
+              const body = JSON.parse(xhr.responseText);
+              reject(new Error(body.error || "Error al subir archivo"));
+            } catch {
+              reject(new Error("Error al subir archivo"));
+            }
+          }
         };
         xhr.onerror = () => reject(new Error("Error de conexión"));
         xhr.open("POST", "/api/upload");
