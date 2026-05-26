@@ -343,25 +343,39 @@ export function BudgetCalculator() {
             <div className="premium-card sticky top-24">
               <h3 className="text-lg font-semibold mb-6">Resumen</h3>
 
-              {!selectedService ? (
+              {!selectedService || !selectedServiceData ? (
                 <p className="text-gray-500 text-sm">Seleccioná un servicio para ver el resumen.</p>
-              ) : (
+              ) : (() => {
+                const svc = selectedServiceData;
+                return (
                 <div className="space-y-4">
                   <div className="flex justify-between items-start pb-4 border-b border-white/10">
                     <div>
                       <p className="text-sm text-gray-400">Servicio</p>
-                      <p className="font-medium">{selectedServiceData?.name}</p>
+                      <p className="font-medium">{svc.name}</p>
                     </div>
                     <span className="text-premium-accent font-bold">
-                      ${selectedServiceData?.basePrice.toLocaleString("es-AR") ?? 0}
+                      ${svc.basePrice.toLocaleString("es-AR")}
                     </span>
                   </div>
 
+                  {INCLUDED_EXTRAS[svc.name]?.length > 0 && (
+                    <div className="space-y-1 pb-4 border-b border-white/10">
+                      <p className="text-sm text-green-400">✓ Incluye</p>
+                      {INCLUDED_EXTRAS[svc.name].map((name) => (
+                        <div key={name} className="flex justify-between text-sm text-green-400/70">
+                          <span>{name}</span>
+                          <span className="text-green-400/50">Incluido</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {selectedExtras.length > 0 && (
                     <div className="space-y-2 pb-4 border-b border-white/10">
-                      <p className="text-sm text-gray-400">Extras</p>
+                      <p className="text-sm text-gray-400">Extras seleccionados</p>
                       {selectedExtras.map((id) => {
-                        const extra = selectedServiceData?.extras?.find((e) => e.id === id);
+                        const extra = svc.extras?.find((e) => e.id === id);
                         return (
                           <div key={id} className="flex justify-between text-sm text-gray-400">
                             <span>{extra?.name}</span>
@@ -398,7 +412,7 @@ export function BudgetCalculator() {
                     Te contactamos por WhatsApp y email
                   </p>
                 </div>
-              )}
+                )})()}
             </div>
           </div>
         </form>
