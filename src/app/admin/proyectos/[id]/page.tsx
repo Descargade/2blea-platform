@@ -167,29 +167,28 @@ export default function AdminProjectDetail() {
   const updateMutation = useUpdateProject();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<"editor" | "files" | "links" | "activity">("editor");
+  const [dirty, setDirty] = useState(false);
+
+  const [status, setStatus] = useState<string>(project?.status || "CONSULTA");
+  const [progress, setProgress] = useState(project?.progress ?? 0);
+  const [startDate, setStartDate] = useState(project?.startDate ?? "");
+  const [endDate, setEndDate] = useState(project?.endDate ?? "");
+  const [cost, setCost] = useState(project?.cost ?? 0);
 
   if (isLoading) return <div className="space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-96" /><Skeleton className="h-64 w-full" /></div>;
   if (isError) return <ErrorState message="Error al cargar proyecto" onRetry={refetch} />;
   if (!project) return <ErrorState message="Proyecto no encontrado" />;
-  const pj = project;
+  const p = project;
 
-  const [status, setStatus] = useState<string>(pj.status);
-  const [progress, setProgress] = useState(pj.progress);
-  const [startDate, setStartDate] = useState(pj.startDate ?? "");
-  const [endDate, setEndDate] = useState(pj.endDate ?? "");
-  const [cost, setCost] = useState(pj.cost ?? 0);
-  const [features, setFeatures] = useState<string[]>(pj.features ?? []);
-  const [dirty, setDirty] = useState(false);
-
-  const isDirty = status !== pj.status || progress !== pj.progress ||
-    startDate !== (pj.startDate ?? "") || endDate !== (pj.endDate ?? "") ||
-    cost !== (pj.cost ?? 0);
+  const isDirty = status !== p.status || progress !== p.progress ||
+    startDate !== (p.startDate ?? "") || endDate !== (p.endDate ?? "") ||
+    cost !== (p.cost ?? 0);
 
   const anticipo = cost ? cost * 0.5 : 0;
   const saldoFinal = cost ? cost * 0.5 : 0;
-  const paymentsArr = pj.payments || [];
-  const anticipoPaid = paymentsArr.find((p) => p.type === "ANTICIPO");
-  const saldoPaid = paymentsArr.find((p) => p.type === "SALDO_FINAL");
+  const paymentsArr = p.payments || [];
+  const anticipoPaid = paymentsArr.find((pay) => pay.type === "ANTICIPO");
+  const saldoPaid = paymentsArr.find((pay) => pay.type === "SALDO_FINAL");
 
   function handleSave() {
     updateMutation.mutate({ id, status, progress, startDate: startDate || undefined, endDate: endDate || undefined, cost: cost || undefined }, {
@@ -198,16 +197,16 @@ export default function AdminProjectDetail() {
   }
 
   function handleRestore() {
-    setStatus(pj.status);
-    setProgress(pj.progress);
-    setStartDate(pj.startDate ?? "");
-    setEndDate(pj.endDate ?? "");
-    setCost(pj.cost ?? 0);
+    setStatus(p.status);
+    setProgress(p.progress);
+    setStartDate(p.startDate ?? "");
+    setEndDate(p.endDate ?? "");
+    setCost(p.cost ?? 0);
     setDirty(false);
   }
 
   async function markPaymentPaid(type: string, amount: number) {
-    await api.post(`/projects/${pj.id}/payments`, { amount, type, note: `Pago ${type === "ANTICIPO" ? "anticipo" : "saldo final"}` });
+    await api.post(`/projects/${p.id}/payments`, { amount, type, note: `Pago ${type === "ANTICIPO" ? "anticipo" : "saldo final"}` });
     refetch();
   }
 
@@ -260,8 +259,8 @@ export default function AdminProjectDetail() {
           </span>
         </div>
         <p className="text-gray-400 text-sm">
-          Cliente: {pj.client?.user?.name || "Sin cliente"}
-          {pj.service ? ` · ${pj.service.name}` : ""}
+          Cliente: {project.client?.user?.name || "Sin cliente"}
+          {project.service ? ` · ${project.service.name}` : ""}
         </p>
       </motion.div>
 
