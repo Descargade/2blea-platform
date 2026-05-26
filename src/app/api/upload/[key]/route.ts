@@ -4,6 +4,19 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { error } from "@/lib/api-response";
 import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
+import { MIME_EXTENSIONS } from "@/lib/storage/types";
+import { v2 as cloudinary } from "cloudinary";
+
+function getCloudinaryUrl(key: string, mimeType: string): string {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (!cloudName) return "";
+  let resourceType = "raw";
+  if (mimeType.startsWith("image/")) resourceType = "image";
+  else if (mimeType.startsWith("video/")) resourceType = "video";
+  const ext = MIME_EXTENSIONS[mimeType] || "";
+  const urlKey = resourceType === "raw" ? `${key}${ext}` : key;
+  return `https://res.cloudinary.com/${cloudName}/${resourceType}/upload/${urlKey}`;
+}
 
 export async function GET(
   _req: Request,
@@ -21,8 +34,8 @@ export async function GET(
     }
 
     if (process.env.CLOUDINARY_CLOUD_NAME) {
-      const url = storage.getUrl(key);
-      return NextResponse.redirect(url);
+      const url = getCloudinaryUrl(key, projectFile.mimeType);
+      return NextResponse.redirect(url, 302);
     }
 
     const { buffer } = await storage.read(key);
@@ -30,7 +43,6 @@ export async function GET(
       headers: {
         "Content-Type": projectFile.mimeType,
         "Content-Disposition": `inline; filename="${projectFile.originalName}"`,
-        "Content-Length": String(projectFile.size),
       },
     });
   } catch (e) {
