@@ -14,7 +14,7 @@ import { Check, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const WHATSAPP_NUMBER = "2622540837";
+const WHATSAPP_NUMBER = "5492622530837";
 const BUDGET_EMAIL = "gonzalezlucasaaron@gmail.com";
 
 const INCLUDED_EXTRAS: Record<string, string[]> = {
