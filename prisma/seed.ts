@@ -94,10 +94,13 @@ async function main() {
 
   const pagVentas = await upsertService(
     "Página de Ventas",
-    "Página de ventas profesional con embudos de conversión. Incluye: Login de usuarios, Panel administrador, Base de datos, Hosting / configuración.",
+    "Página de ventas profesional con embudos de conversión optimizados.",
     150000, 3
   );
-  // No tiene extras para agregar — ya incluye Login, Panel, DB, Hosting
+  // Puede agregar Login, Panel, DB, Hosting como extras (no incluidos en base)
+  for (const e of [extraLogin, extraPanel, extraDB, extraHosting]) {
+    await upsertExtra(pagVentas.id, e.name, e.price);
+  }
 
   const webNegocios = await upsertService(
     "Web para Negocios",
