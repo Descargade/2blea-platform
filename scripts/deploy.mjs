@@ -1,21 +1,32 @@
 import { execSync } from "child_process";
 
 function run(cmd, opts = {}) {
-  execSync(cmd, { stdio: "inherit", timeout: 90000, ...opts });
+  execSync(cmd, { stdio: "inherit", timeout: 120000, ...opts });
 }
 
 const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const deployEnv = { ...process.env, DATABASE_URL: directUrl };
 
 // Step 1: Add enum values using direct connection
 console.log("\n=== Step 1: Migrating enums ===");
-run("node scripts/migrate-enums.mjs", { env: { ...process.env, DATABASE_URL: directUrl } });
+run("node scripts/migrate-enums.mjs", { env: deployEnv });
 
-// Step 2: Deploy Prisma migrations using direct connection (bypasses Neon pooler advisory lock issue)
-console.log("\n=== Step 2: Deploying Prisma migrations ===");
+// Step 2: Resolve any previously failed migrations
+console.log("\n=== Step 2: Resolving failed migrations ===");
+// Mark as rolled back so Prisma re-applies it (now without the ALTER TYPE ADD VALUE)
+try {
+  run('prisma migrate resolve --rolled-back "20260526050000_add_new_statuses_features_payment"', { env: deployEnv });
+  console.log("✅ Failed migration rolled back, will re-apply");
+} catch {
+  console.log("ℹ️ No failed migration to resolve (or already resolved)");
+}
+
+// Step 3: Deploy Prisma migrations using direct connection
+console.log("\n=== Step 3: Deploying Prisma migrations ===");
 const maxRetries = 4;
 for (let i = 0; i < maxRetries; i++) {
   try {
-    run("prisma migrate deploy", { env: { ...process.env, DATABASE_URL: directUrl } });
+    run("prisma migrate deploy", { env: deployEnv });
     break;
   } catch (err) {
     const out = err.stderr?.toString() || err.stdout?.toString() || err.message || "";
@@ -28,10 +39,10 @@ for (let i = 0; i < maxRetries; i++) {
   }
 }
 
-// Step 3: Generate client (uses the regular pooled DATABASE_URL for the schema)
-console.log("\n=== Step 3: Generating Prisma client ===");
+// Step 4: Generate client
+console.log("\n=== Step 4: Generating Prisma client ===");
 run("prisma generate");
 
-// Step 4: Build Next.js
-console.log("\n=== Step 4: Building Next.js ===");
+// Step 5: Build Next.js
+console.log("\n=== Step 5: Building Next.js ===");
 run("next build");
