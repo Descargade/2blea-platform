@@ -1,4 +1,3 @@
-import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -30,44 +29,25 @@ const SECURITY_HEADERS: Record<string, string> = {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Auth redirects (using JWT token, Edge-safe)
-  const isAdminRoute = pathname.startsWith("/admin");
-  const isClientRoute = pathname.startsWith("/cliente");
-  const isAuthRoute = pathname.startsWith("/login");
+  // Login redirect for authenticated users (simple cookie check)
+  if (pathname === "/login") {
+    const tokenCookie = request.cookies.get("next-auth.session-token")
+      || request.cookies.get("__Secure-next-auth.session-token")
+      || request.cookies.get("authjs.session-token");
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-
-  const isLoggedIn = !!token;
-  const role = token?.role as string | undefined;
-
-  if (isAuthRoute && isLoggedIn) {
-    if (role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    if (tokenCookie?.value) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
-    return NextResponse.redirect(new URL("/cliente/dashboard", request.url));
-  }
-
-  if (isAdminRoute && (!isLoggedIn || role !== "ADMIN")) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (isClientRoute && (!isLoggedIn || role !== "CLIENTE")) {
-    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   const response = NextResponse.next();
 
-  // Security headers (production only)
   if (process.env.NODE_ENV === "production") {
     Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
       response.headers.set(key, value);
     });
   }
 
-  // CORS
   const origin = request.headers.get("origin") ?? "";
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL,
