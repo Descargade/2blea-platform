@@ -49,9 +49,6 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
             >
               Mensajes
             </Link>
-            <Link href="/perfil" className="text-sm text-gray-400 hover:text-white transition-colors">
-              Perfil
-            </Link>
             <NotificationDropdown />
             <Link href="/api/auth/signout" className="text-sm text-gray-400 hover:text-white transition-colors">
               Cerrar sesión
