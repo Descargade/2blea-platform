@@ -20,7 +20,7 @@ const BUDGET_EMAIL = "gonzalezlucasaaron@gmail.com";
 const INCLUDED_EXTRAS: Record<string, string[]> = {
   "Landing + Turnos + Confirmación": ["Sistema de turnos Incluido", "Confirmación automática"],
   "Página de Ventas": ["Login de usuarios", "Panel administrador", "Base de datos", "Hosting / configuración"],
-  "Web para Negocios": ["Login de usuarios", "Panel administrador", "Hosting / configuración"],
+  "Web para Negocios": ["Login de usuarios", "Panel administrador", "Base de datos", "Hosting / configuración"],
   "Catálogo Online": ["Login de usuarios", "Hosting / configuración"],
   "Sitio Web Profesional": ["Login de usuarios", "Panel administrador", "Base de datos", "Hosting / configuración"],
 };

@@ -65,7 +65,6 @@ async function main() {
   console.log(`  ✓ Cliente: ${clienteUser.email}`);
 
   // ── Servicios ──
-  // Extras disponibles como opcionales
   const extraLogin = { name: "Login de usuarios", price: 10000 };
   const extraPanel = { name: "Panel administrador", price: 30000 };
   const extraDB = { name: "Base de datos", price: 60000 };
@@ -78,6 +77,7 @@ async function main() {
     "Página web profesional de una sola página, optimizada para conversión y rendimiento.",
     70000, 1
   );
+  // Puede agregar TODOS los extras
   for (const e of [extraLogin, extraPanel, extraDB, extraHosting, extraTurnos, extraConfirm]) {
     await upsertExtra(landingSimple.id, e.name, e.price);
   }
@@ -87,44 +87,44 @@ async function main() {
     "Landing page con sistema de turnos integrado y confirmación automática. Incluye: Sistema de turnos + Confirmación automática.",
     85000, 2
   );
-  // Sistema de turnos y Confirmación ya incluidos en el base — solo ofrecemos los demás como extras
+  // Puede agregar todos EXCEPTO Turnos y Confirm (ya incluidos)
   for (const e of [extraLogin, extraPanel, extraDB, extraHosting]) {
     await upsertExtra(landingTurnos.id, e.name, e.price);
   }
 
   const pagVentas = await upsertService(
     "Página de Ventas",
-    "Página de ventas profesional con embudos de conversión. Incluye: Login de usuarios, Panel administrador, Base de datos, Hosting.",
+    "Página de ventas profesional con embudos de conversión. Incluye: Login de usuarios, Panel administrador, Base de datos, Hosting / configuración.",
     150000, 3
   );
-  for (const e of [extraTurnos, extraConfirm]) {
-    await upsertExtra(pagVentas.id, e.name, e.price);
-  }
+  // No tiene extras para agregar — ya incluye Login, Panel, DB, Hosting
 
   const webNegocios = await upsertService(
     "Web para Negocios",
-    "Sitio web completo para negocios con panel administrador y base de datos. Incluye: Login, Panel admin, Hosting.",
+    "Sitio web completo para negocios con panel administrador. Incluye: Login de usuarios, Panel administrador, Base de datos, Hosting / configuración.",
     220000, 4
   );
-  for (const e of [extraDB, extraTurnos, extraConfirm]) {
+  // Puede agregar Base de datos (adicional)
+  for (const e of [extraDB]) {
     await upsertExtra(webNegocios.id, e.name, e.price);
   }
 
   const catalogo = await upsertService(
     "Catálogo Online",
-    "Catálogo digital interactivo con gestión de productos. Incluye: Login de usuarios, Hosting.",
+    "Catálogo digital interactivo con gestión de productos. Incluye: Login de usuarios, Hosting / configuración.",
     180000, 5
   );
-  for (const e of [extraPanel, extraDB, extraTurnos, extraConfirm]) {
+  // Puede agregar Panel administrador y Base de datos
+  for (const e of [extraPanel, extraDB]) {
     await upsertExtra(catalogo.id, e.name, e.price);
   }
 
   const sitioPro = await upsertService(
     "Sitio Web Profesional",
-    "Sitio web profesional completo con todas las funcionalidades integradas. Incluye: Login, Panel admin, Base de datos, Hosting.",
+    "Sitio web profesional completo con todas las funcionalidades. Incluye: Login, Panel admin, Base de datos, Hosting.",
     300000, 6
   );
-  // Sin extras disponibles — todo incluido
+  // Todo incluido. Sin extras. Turnos y Confirmación no aplican para página de ventas.
 
   console.log(`  ✓ 6 servicios con extras`);
 
