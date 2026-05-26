@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/shared/loading";
 import { Modal } from "@/components/shared/modal";
-import { Shield, Building2, Key, Copy, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { Shield, Building2, Key, Copy, Eye, EyeOff } from "lucide-react";
 import api from "@/lib/api";
 
 export default function ClienteConfiguracion() {
@@ -13,33 +13,18 @@ export default function ClienteConfiguracion() {
   const [profile, setProfile] = useState<any>(null);
   const [revealPw, setRevealPw] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
     try {
       const { data: res } = await api.get("/profile");
       setProfile(res?.data || null);
     } catch {}
-    if (!silent) setLoading(false);
+    setLoading(false);
   }, []);
 
   useEffect(() => { fetchProfile(); }, [fetchProfile]);
-  useEffect(() => { if (showPassword) fetchProfile(true); }, [showPassword, fetchProfile]);
-
-  async function handleRegenerate() {
-    setRegenerating(true);
-    try {
-      const { data: res } = await api.post("/profile/regenerate-password");
-      const pw = res?.data?.rawPassword || "";
-      if (pw) {
-        setProfile((prev: any) => ({ ...prev, rawPassword: pw }));
-        setRevealPw(true);
-      }
-    } catch {}
-    setRegenerating(false);
-  }
 
   function handleCopy(text: string) {
     navigator.clipboard.writeText(text);
@@ -54,6 +39,7 @@ export default function ClienteConfiguracion() {
   const rawPassword = profile?.rawPassword || "";
   const clientPhone = profile?.client?.phone || profile?.phone || "";
   const clientCompany = profile?.client?.company || "";
+  const company = profile?.companyContact || {};
 
   return (
     <div>
@@ -71,7 +57,7 @@ export default function ClienteConfiguracion() {
               <p className="text-white font-mono text-lg select-all flex-1 break-all">
                 {revealPw ? rawPassword : "••••••••••"}
               </p>
-              {rawPassword && (
+              {rawPassword ? (
                 <>
                   <button onClick={() => setRevealPw(!revealPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Mostrar/ocultar contraseña">
                     {revealPw ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
@@ -80,22 +66,12 @@ export default function ClienteConfiguracion() {
                     <Copy className="w-4 h-4 text-gray-400" />
                   </button>
                 </>
+              ) : (
+                <p className="text-xs text-gray-500">No disponible</p>
               )}
             </div>
             {copied && <p className="text-xs text-green-400 mt-1">¡Copiado!</p>}
           </div>
-
-          {!rawPassword && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
-              <p className="text-sm text-amber-400 font-medium mb-2">No hay contraseña guardada</p>
-              <p className="text-xs text-gray-400 mb-3">Hacé clic en regenerar para crear una nueva contraseña.</p>
-              <button onClick={handleRegenerate} disabled={regenerating} className="premium-button text-sm w-full flex items-center justify-center gap-2">
-                <RotateCcw className="w-4 h-4" />
-                {regenerating ? "Generando..." : "Regenerar contraseña"}
-              </button>
-            </div>
-          )}
-
           <div className="flex justify-end pt-2">
             <button onClick={() => { setShowPassword(false); setCopied(false); setRevealPw(false); }} className="premium-button-outline text-sm">
               Cerrar
@@ -145,22 +121,22 @@ export default function ClienteConfiguracion() {
 
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Nombre</p>
-            <p className="text-white font-medium">{profile?.name || "---"}</p>
+            <p className="text-white font-medium">{company.name || "2bleA"}</p>
           </div>
 
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Email</p>
-            <p className="text-white font-medium">{profile?.email || "---"}</p>
+            <p className="text-white font-medium">{company.email || "admin@2blea.com"}</p>
           </div>
 
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Teléfono</p>
-            <p className="text-white font-medium">{clientPhone || "---"}</p>
+            <p className="text-white font-medium">{company.phone || "---"}</p>
           </div>
 
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Empresa</p>
-            <p className="text-white font-medium">{clientCompany || "---"}</p>
+            <p className="text-white font-medium">{company.name || "2bleA"}</p>
           </div>
         </div>
       </div>

@@ -69,7 +69,21 @@ export async function GET() {
         client: { select: { company: true, phone: true } },
       },
     });
-    return success(profile);
+
+    const companyAdmin = await prisma.user.findFirst({
+      where: { role: "ADMIN", deletedAt: null },
+      select: { name: true, email: true, phone: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return success({
+      ...profile,
+      companyContact: {
+        name: companyAdmin?.name || "2bleA",
+        email: companyAdmin?.email || "admin@2blea.com",
+        phone: companyAdmin?.phone || "",
+      },
+    });
   } catch (e) {
     return error(e, "Error al obtener perfil");
   }
