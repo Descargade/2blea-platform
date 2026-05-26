@@ -62,6 +62,7 @@ export function useRealtimeProject(projectId: string, userId: string) {
       qc.invalidateQueries({ queryKey: ["project", projectId] });
       qc.invalidateQueries({ queryKey: ["project-files", projectId] });
       qc.invalidateQueries({ queryKey: ["activity"] });
+      qc.invalidateQueries({ queryKey: ["projects"] });
     };
 
     ch.bind("project-updated", invalidate);

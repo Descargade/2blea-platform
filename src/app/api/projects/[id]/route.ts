@@ -1,4 +1,5 @@
 import { requireAuth, requireAdmin } from "@/lib/guards";
+import { prisma } from "@/lib/prisma";
 import { projectService } from "@/server/services/project.service";
 import { projectUpdateSchema } from "@/lib/validations";
 import { success, error } from "@/lib/api-response";
@@ -30,7 +31,15 @@ export async function PUT(
     const project = await projectService.update(id, data, user.id);
 
     try {
-      await pusherServer.trigger(CHANNELS.project(id), EVENTS.PROJECT_UPDATED, {
+      const channels = [CHANNELS.project(id)];
+      const proj = await prisma.project.findFirst({
+        where: { id },
+        select: { client: { select: { userId: true } } },
+      });
+      if (proj?.client?.userId) {
+        channels.push(CHANNELS.user(proj.client.userId));
+      }
+      await pusherServer.trigger(channels, EVENTS.PROJECT_UPDATED, {
         project: { id: project.id, name: project.name, status: project.status, progress: project.progress },
         userId: user.id,
       });
