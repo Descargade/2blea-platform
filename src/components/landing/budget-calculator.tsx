@@ -14,7 +14,16 @@ import { Check, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const WHATSAPP_NUMBER = "2622530837";
+const WHATSAPP_NUMBER = "2622540837";
+const BUDGET_EMAIL = "gonzalezlucasaaron@gmail.com";
+
+const INCLUDED_EXTRAS: Record<string, string[]> = {
+  "Landing + Turnos + Confirmación": ["Sistema de turnos Incluido", "Confirmación automática"],
+  "Página de Ventas": ["Login de usuarios", "Panel administrador", "Base de datos", "Hosting / configuración"],
+  "Web para Negocios": ["Login de usuarios", "Panel administrador", "Hosting / configuración"],
+  "Catálogo Online": ["Login de usuarios", "Hosting / configuración"],
+  "Sitio Web Profesional": ["Login de usuarios", "Panel administrador", "Base de datos", "Hosting / configuración"],
+};
 
 export function BudgetCalculator() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -71,10 +80,15 @@ export function BudgetCalculator() {
     },
     onSuccess: (_, variables) => {
       const serviceName = selectedServiceData?.name ?? variables.service;
+      const extrasList = selectedExtras
+        .map((id) => selectedServiceData?.extras?.find((e) => e.id === id)?.name)
+        .filter(Boolean)
+        .join(", ");
       const waMessage = encodeURIComponent(
-        `¡Hola! Quiero contratar:\n\n*Servicio:* ${serviceName}\n*Extras:* ${variables.extras?.length ?? 0} seleccionados\n*Total:* $${variables.total.toLocaleString("es-AR")}\n\n*Nombre:* ${variables.name}\n*Email:* ${variables.email}\n*Teléfono:* ${variables.phone}\n*Mensaje:* ${variables.message ?? "Sin mensaje"}`
+        `¡Hola! Quiero contratar:\n\n*Servicio:* ${serviceName}\n*Extras:* ${extrasList || "Ninguno"}\n*Total:* $${variables.total.toLocaleString("es-AR")}\n\n*Nombre:* ${variables.name}\n*Email:* ${variables.email}\n*Teléfono:* ${variables.phone}\n*Mensaje:* ${variables.message ?? "Sin mensaje"}`
       );
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`, "_blank");
+      window.open(`mailto:${BUDGET_EMAIL}?subject=Presupuesto 2bleA - ${serviceName}&body=${waMessage.replace(/\*/g, "").replace(/%0A/g, "%0D%0A")}`, "_blank");
       form.reset();
       setSelectedService(null);
       setSelectedExtras([]);
@@ -222,46 +236,65 @@ export function BudgetCalculator() {
             </div>
 
             <AnimatePresence>
-              {selectedServiceData && selectedServiceData.extras?.length > 0 && (
+              {selectedServiceData && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="premium-card"
                 >
-                  <h3 className="text-lg font-semibold mb-6">2. Extras opcionales</h3>
-                  <div className="space-y-2">
-                    {selectedServiceData.extras.map((extra) => (
-                      <button
-                        key={extra.id}
-                        type="button"
-                        onClick={() => toggleExtra(extra.id)}
-                        className={`w-full text-left p-3 rounded-xl border transition-all duration-300 flex items-center justify-between ${
-                          selectedExtras.includes(extra.id)
-                            ? "border-premium-violet/40 bg-premium-violet/5"
-                            : "border-white/5 bg-premium-glass hover:border-white/10"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                  <h3 className="text-lg font-semibold mb-6">2. Extras</h3>
+
+                  {selectedServiceData.extras?.length > 0 && (
+                    <>
+                      <p className="text-sm text-gray-400 mb-3">Opcionales para agregar:</p>
+                      <div className="space-y-2 mb-6">
+                        {selectedServiceData.extras.map((extra) => (
+                          <button
+                            key={extra.id}
+                            type="button"
+                            onClick={() => toggleExtra(extra.id)}
+                            className={`w-full text-left p-3 rounded-xl border transition-all duration-300 flex items-center justify-between ${
                               selectedExtras.includes(extra.id)
-                                ? "bg-premium-violet border-premium-violet"
-                                : "border-gray-600"
+                                ? "border-premium-violet/40 bg-premium-violet/5"
+                                : "border-white/5 bg-premium-glass hover:border-white/10"
                             }`}
                           >
-                            {selectedExtras.includes(extra.id) && (
-                              <Check className="w-3 h-3 text-white" />
-                            )}
-                          </div>
-                          <span className="text-sm">{extra.name}</span>
-                        </div>
-                        <span className="text-sm text-gray-400">
-                          +${extra.price.toLocaleString("es-AR")}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                                  selectedExtras.includes(extra.id)
+                                    ? "bg-premium-violet border-premium-violet"
+                                    : "border-gray-600"
+                                }`}
+                              >
+                                {selectedExtras.includes(extra.id) && (
+                                  <Check className="w-3 h-3 text-white" />
+                                )}
+                              </div>
+                              <span className="text-sm">{extra.name}</span>
+                            </div>
+                            <span className="text-sm text-gray-400">
+                              +${extra.price.toLocaleString("es-AR")}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {INCLUDED_EXTRAS[selectedServiceData.name]?.length > 0 && (
+                    <div className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
+                      <p className="text-sm text-green-400 mb-2">✓ Incluidos en el servicio:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {INCLUDED_EXTRAS[selectedServiceData.name].map((name) => (
+                          <span key={name} className="text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-300">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

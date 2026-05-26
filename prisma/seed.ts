@@ -65,32 +65,66 @@ async function main() {
   console.log(`  ✓ Cliente: ${clienteUser.email}`);
 
   // ── Servicios ──
-  const commonExtras = [
-    { name: "Sistema de turnos", price: 10000 },
-    { name: "Confirmación automática", price: 10000 },
-    { name: "Login de usuarios", price: 10000 },
-    { name: "Panel administrador", price: 30000 },
-    { name: "Base de datos", price: 60000 },
-    { name: "Hosting / configuración", price: 15000 },
-  ];
+  // Extras disponibles como opcionales
+  const extraLogin = { name: "Login de usuarios", price: 10000 };
+  const extraPanel = { name: "Panel administrador", price: 30000 };
+  const extraDB = { name: "Base de datos", price: 60000 };
+  const extraHosting = { name: "Hosting / configuración", price: 15000 };
+  const extraTurnos = { name: "Sistema de turnos Incluido", price: 10000 };
+  const extraConfirm = { name: "Confirmación automática", price: 10000 };
 
-  const landingSimple = await upsertService("Landing Page Simple", "Landing page profesional y optimizada para conversión.", 70000, 1);
-  for (const e of commonExtras) await upsertExtra(landingSimple.id, e.name, e.price);
+  const landingSimple = await upsertService(
+    "Landing Page Simple",
+    "Página web profesional de una sola página, optimizada para conversión y rendimiento.",
+    70000, 1
+  );
+  for (const e of [extraLogin, extraPanel, extraDB, extraHosting, extraTurnos, extraConfirm]) {
+    await upsertExtra(landingSimple.id, e.name, e.price);
+  }
 
-  const landingTurnos = await upsertService("Landing + Turnos + Confirmación", "Landing con sistema de turnos y confirmación automática.", 85000, 2);
-  for (const e of commonExtras) await upsertExtra(landingTurnos.id, e.name, e.price);
+  const landingTurnos = await upsertService(
+    "Landing + Turnos + Confirmación",
+    "Landing page con sistema de turnos integrado y confirmación automática. Incluye: Sistema de turnos + Confirmación automática.",
+    85000, 2
+  );
+  // Sistema de turnos y Confirmación ya incluidos en el base — solo ofrecemos los demás como extras
+  for (const e of [extraLogin, extraPanel, extraDB, extraHosting]) {
+    await upsertExtra(landingTurnos.id, e.name, e.price);
+  }
 
-  const pagVentas = await upsertService("Página de Ventas", "Página de ventas profesional con embudos de conversión.", 150000, 3);
-  for (const e of commonExtras) await upsertExtra(pagVentas.id, e.name, e.price);
+  const pagVentas = await upsertService(
+    "Página de Ventas",
+    "Página de ventas profesional con embudos de conversión. Incluye: Login de usuarios, Panel administrador, Base de datos, Hosting.",
+    150000, 3
+  );
+  for (const e of [extraTurnos, extraConfirm]) {
+    await upsertExtra(pagVentas.id, e.name, e.price);
+  }
 
-  const webNegocios = await upsertService("Web para Negocios", "Sitio web completo para negocios con panel administrador.", 220000, 4);
-  for (const e of commonExtras) await upsertExtra(webNegocios.id, e.name, e.price);
+  const webNegocios = await upsertService(
+    "Web para Negocios",
+    "Sitio web completo para negocios con panel administrador y base de datos. Incluye: Login, Panel admin, Hosting.",
+    220000, 4
+  );
+  for (const e of [extraDB, extraTurnos, extraConfirm]) {
+    await upsertExtra(webNegocios.id, e.name, e.price);
+  }
 
-  const catalogo = await upsertService("Catálogo Online", "Catálogo digital interactivo con gestión de productos.", 180000, 5);
-  for (const e of commonExtras) await upsertExtra(catalogo.id, e.name, e.price);
+  const catalogo = await upsertService(
+    "Catálogo Online",
+    "Catálogo digital interactivo con gestión de productos. Incluye: Login de usuarios, Hosting.",
+    180000, 5
+  );
+  for (const e of [extraPanel, extraDB, extraTurnos, extraConfirm]) {
+    await upsertExtra(catalogo.id, e.name, e.price);
+  }
 
-  const sitioPro = await upsertService("Sitio Web Profesional", "Sitio web profesional completo con todas las funcionalidades.", 300000, 6);
-  for (const e of commonExtras) await upsertExtra(sitioPro.id, e.name, e.price);
+  const sitioPro = await upsertService(
+    "Sitio Web Profesional",
+    "Sitio web profesional completo con todas las funcionalidades integradas. Incluye: Login, Panel admin, Base de datos, Hosting.",
+    300000, 6
+  );
+  // Sin extras disponibles — todo incluido
 
   console.log(`  ✓ 6 servicios con extras`);
 
