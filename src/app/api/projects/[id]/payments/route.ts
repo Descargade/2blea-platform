@@ -2,12 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 import { success, created, error } from "@/lib/api-response";
 import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
-import { z } from "zod";
-
-const paymentSchema = z.object({
-  amount: z.number().min(1, "El monto debe ser mayor a 0"),
-  note: z.string().optional(),
-});
+import { paymentCreateSchema } from "@/lib/validations";
 
 export async function POST(
   req: Request,
@@ -17,12 +12,14 @@ export async function POST(
     const user = await requireAdmin();
     const { id } = await params;
     const body = await req.json();
-    const data = paymentSchema.parse(body);
+    const data = paymentCreateSchema.parse(body);
 
     const payment = await prisma.projectPayment.create({
       data: {
         projectId: id,
+        type: data.type ?? "GENERAL",
         amount: data.amount,
+        status: "PAID",
         note: data.note || null,
       },
     });
@@ -59,5 +56,25 @@ export async function POST(
     return created(payment, "Pago registrado correctamente");
   } catch (e) {
     return error(e, "Error al registrar pago");
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAdmin();
+    const { id: projectId } = await params;
+    const { paymentId, status } = await req.json();
+
+    const payment = await prisma.projectPayment.update({
+      where: { id: paymentId, projectId },
+      data: { status },
+    });
+
+    return success(payment, "Estado de pago actualizado");
+  } catch (e) {
+    return error(e, "Error al actualizar pago");
   }
 }

@@ -35,7 +35,7 @@ export default function AdminDashboard() {
 
   const stats = {
     totalClients: cList.length,
-    activeProjects: pList.filter((p) => p.status !== "FINALIZADO" && p.status !== "ENTREGADO").length,
+    activeProjects: pList.filter((p) => p.status !== "OPTIMIZACION" && p.status !== "ENTREGADO").length,
     unreadMessages: mList.reduce((acc, conv) => {
       return acc + (conv.messages?.filter((m) => !m.read).length || 0);
     }, 0),

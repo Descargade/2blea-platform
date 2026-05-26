@@ -64,6 +64,14 @@ export function error(
     );
   }
 
+  if (error instanceof Error) {
+    apiLogger.error({ err: error }, "API Error");
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+
   apiLogger.error({ err: error }, "API Error");
   return NextResponse.json(
     { success: false, error: fallbackMessage },

@@ -18,6 +18,23 @@ enum ProjectStatus {
   ESPERANDO_FEEDBACK
   FINALIZADO
   ENTREGADO
+  CONSULTA
+  DISENO
+  DESARROLLO
+  REVISION
+  OPTIMIZACION
+}
+
+enum PaymentType {
+  ANTICIPO
+  SALDO_FINAL
+  GENERAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
 }
 
 model User {
@@ -121,13 +138,14 @@ model Project {
   id          String        @id @default(cuid())
   name        String
   description String?
-  status      ProjectStatus @default(PENDIENTE)
+  status      ProjectStatus @default(CONSULTA)
   progress    Int           @default(0)
   clientId    String
   serviceId   String?
   cost        Float?
   totalPaid   Float         @default(0)
   extras      Json?
+  features    String[]
   startDate   DateTime?
   endDate     DateTime?
   createdAt   DateTime      @default(now())
@@ -160,12 +178,14 @@ model ProjectLink {
 }
 
 model ProjectPayment {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   projectId String
+  type      PaymentType   @default(GENERAL)
   amount    Float
-  date      DateTime @default(now())
+  date      DateTime      @default(now())
+  status    PaymentStatus @default(PENDING)
   note      String?
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 

@@ -2,24 +2,25 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import type { ProjectItem } from "@/types";
 
 export function useProjects() {
-  return useQuery({
+  return useQuery<ProjectItem[]>({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data } = await api.get("/projects");
-      return data.data ?? data;
+      return (data.data ?? data) as ProjectItem[];
     },
     staleTime: 30_000,
   });
 }
 
 export function useProject(id: string) {
-  return useQuery({
+  return useQuery<ProjectItem>({
     queryKey: ["project", id],
     queryFn: async () => {
       const { data } = await api.get(`/projects/${id}`);
-      return data.data ?? data;
+      return (data.data ?? data) as ProjectItem;
     },
     enabled: !!id,
   });

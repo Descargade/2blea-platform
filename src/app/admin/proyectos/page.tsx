@@ -16,18 +16,20 @@ import type { ProjectItem, ExtraItem, ServiceItem } from "@/types";
 import { FolderKanban, Plus } from "lucide-react";
 
 const statusStyles: Record<string, string> = {
-  PENDIENTE: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-  EN_PROGRESO: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  ESPERANDO_FEEDBACK: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  FINALIZADO: "bg-green-500/10 text-green-500 border-green-500/20",
-  ENTREGADO: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  CONSULTA: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  DISENO: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  DESARROLLO: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  REVISION: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  OPTIMIZACION: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  ENTREGADO: "bg-green-500/10 text-green-400 border-green-500/20",
 };
 
 const statusLabels: Record<string, string> = {
-  PENDIENTE: "Pendiente",
-  EN_PROGRESO: "En progreso",
-  ESPERANDO_FEEDBACK: "Esperando feedback",
-  FINALIZADO: "Finalizado",
+  CONSULTA: "Consulta",
+  DISENO: "Diseño",
+  DESARROLLO: "Desarrollo",
+  REVISION: "Revisión",
+  OPTIMIZACION: "Optimización",
   ENTREGADO: "Entregado",
 };
 

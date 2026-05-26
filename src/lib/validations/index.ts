@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProjectStatus } from "@prisma/client";
+import { ProjectStatus, PaymentType, PaymentStatus } from "@prisma/client";
 
 export const emailSchema = z.string().email("Email inválido").min(1, "Email requerido");
 
@@ -47,6 +47,13 @@ export const projectUpdateSchema = z.object({
   totalPaid: z.number().min(0).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  features: z.array(z.string()).optional(),
+});
+
+export const paymentCreateSchema = z.object({
+  amount: z.number().min(1, "El monto debe ser mayor a 0"),
+  type: z.nativeEnum(PaymentType).optional().default("GENERAL"),
+  note: z.string().optional(),
 });
 
 export const serviceCreateSchema = z.object({
@@ -94,6 +101,7 @@ export type ClientCreateInput = z.infer<typeof clientCreateSchema>;
 export type ClientUpdateInput = z.infer<typeof clientUpdateSchema>;
 export type ProjectCreateInput = z.infer<typeof projectCreateSchema>;
 export type ProjectUpdateInput = z.infer<typeof projectUpdateSchema>;
+export type PaymentCreateInput = z.infer<typeof paymentCreateSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type OfferCreateInput = z.infer<typeof offerCreateSchema>;
 export type BudgetCreateInput = z.infer<typeof budgetCreateSchema>;

@@ -3,12 +3,29 @@ import { storage } from "@/lib/storage";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { success, error } from "@/lib/api-response";
+import { AppError } from "@/lib/app-error";
 import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
 
 const MAX_FILES_PER_PROJECT = 200;
 
+function checkCloudinary() {
+  if (process.env.VERCEL !== "1") return;
+  const missing = [];
+  if (!process.env.CLOUDINARY_CLOUD_NAME) missing.push("CLOUDINARY_CLOUD_NAME");
+  if (!process.env.CLOUDINARY_API_KEY) missing.push("CLOUDINARY_API_KEY");
+  if (!process.env.CLOUDINARY_API_SECRET) missing.push("CLOUDINARY_API_SECRET");
+  if (missing.length > 0) {
+    throw new AppError(
+      `En Vercel necesitás Cloudinary para subir archivos. Variables faltantes: ${missing.join(", ")}. Agregalas en Vercel Dashboard → Settings → Environment Variables.`,
+      500
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
+    checkCloudinary();
+
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
     const { allowed } = checkRateLimit(rateLimitKey(ip, "upload"), 50);
     if (!allowed) {
@@ -23,8 +40,6 @@ export async function POST(req: Request) {
     if (!file) return error(new Error("Archivo requerido"), "No se recibió ningún archivo");
     if (!projectId) return error(new Error("ProjectId requerido"), "Falta el ID del proyecto");
 
-    console.log(`[Upload] User ${user.id} uploading "${file.name}" (${file.type}, ${(file.size / 1024 / 1024).toFixed(2)}MB) to project ${projectId}`);
-
     const project = await prisma.project.findFirst({ where: { id: projectId, deletedAt: null } });
     if (!project) return error(new Error("NotFound"), "Proyecto no encontrado");
 
@@ -37,7 +52,6 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // File size validation (redundant with storage.validate but adds early rejection)
     if (buffer.length > 100 * 1024 * 1024) {
       return error(new Error("TooLarge"), "El archivo excede el límite de 100MB");
     }
@@ -67,17 +81,15 @@ export async function POST(req: Request) {
       },
     });
 
-    // Realtime — notify project channel AND client's user channel
+    // Realtime
     try {
       const channels = [CHANNELS.project(projectId)];
-      if (project.clientId) {
-        const projWithClient = await prisma.project.findFirst({
-          where: { id: projectId },
-          select: { client: { select: { userId: true } } },
-        });
-        if (projWithClient?.client?.userId) {
-          channels.push(CHANNELS.user(projWithClient.client.userId));
-        }
+      const projWithClient = await prisma.project.findFirst({
+        where: { id: projectId },
+        select: { client: { select: { userId: true } } },
+      });
+      if (projWithClient?.client?.userId) {
+        channels.push(CHANNELS.user(projWithClient.client.userId));
       }
       await pusherServer.trigger(channels, EVENTS.FILE_UPLOADED, {
         file: { ...projectFile, url },

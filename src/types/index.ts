@@ -1,11 +1,15 @@
 export type Role = "ADMIN" | "CLIENTE";
 
 export type ProjectStatus =
-  | "PENDIENTE"
-  | "EN_PROGRESO"
-  | "ESPERANDO_FEEDBACK"
-  | "FINALIZADO"
+  | "CONSULTA"
+  | "DISENO"
+  | "DESARROLLO"
+  | "REVISION"
+  | "OPTIMIZACION"
   | "ENTREGADO";
+
+export type PaymentType = "ANTICIPO" | "SALDO_FINAL" | "GENERAL";
+export type PaymentStatus = "PENDING" | "PAID" | "OVERDUE";
 
 export interface AuthUser {
   id: string;
@@ -90,8 +94,10 @@ export interface ProjectLink {
 export interface ProjectPayment {
   id: string;
   projectId: string;
+  type: PaymentType;
   amount: number;
   date: string;
+  status: PaymentStatus;
   note?: string | null;
   createdAt: string;
 }
@@ -107,6 +113,7 @@ export interface ProjectItem {
   serviceId?: string | null;
   service?: { id: string; name: string } | null;
   extras?: Array<{ id: string; name: string; price: number }> | null;
+  features: string[];
   startDate?: string | null;
   endDate?: string | null;
   createdAt: string;

@@ -89,6 +89,7 @@ export const projectService = {
     if (data.totalPaid !== undefined) updateData.totalPaid = data.totalPaid;
     if (data.startDate) updateData.startDate = new Date(data.startDate);
     if (data.endDate) updateData.endDate = new Date(data.endDate);
+    if (data.features !== undefined) updateData.features = data.features;
 
     const updated = await prisma.project.update({
       where: { id },
