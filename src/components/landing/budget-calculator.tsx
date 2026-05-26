@@ -290,7 +290,7 @@ export function BudgetCalculator() {
                     <div className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
                       <p className="text-sm text-green-400 mb-2">✓ Incluidos en el servicio:</p>
                       <div className="flex flex-wrap gap-2">
-                        {INCLUDED_EXTRAS[service.name].map((name) => (
+                        {INCLUDED_EXTRAS[service.name]?.map((name) => (
                           <span key={name} className="text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-300">
                             {name}
                           </span>
