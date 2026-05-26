@@ -79,7 +79,8 @@ export default function ClienteProjectDetail() {
   const currentStage = (stages[stageIndex] || stages[0])!;
   const anticipo = p.payments?.find(pay => pay.type === "ANTICIPO");
   const saldo = p.payments?.find(pay => pay.type === "SALDO_FINAL");
-  const features = (p as any).features ?? ["Branding completo", "UX/UI Design", "Desarrollo responsive", "SEO básico", "Integración CMS", "Soporte técnico"];
+  const incluidas = p.features ?? [];
+  const extras = (p as any).extras ?? [];
 
   return (
     <motion.div variants={container} initial="hidden" animate="show">
@@ -183,14 +184,35 @@ export default function ClienteProjectDetail() {
             <Package className="w-5 h-5 text-premium-violet" />
             <h3 className="text-lg font-semibold">Incluye</h3>
           </div>
-          <ul className="space-y-2">
-            {features.map((f: string, idx: number) => (
-              <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
-                <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
+          {incluidas.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Incluidos</p>
+              <ul className="space-y-2">
+                {incluidas.map((f: string, idx: number) => (
+                  <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {extras.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Extras</p>
+              <ul className="space-y-2">
+                {extras.map((e: { id: string; name: string; price?: number }, idx: number) => (
+                  <li key={e.id || idx} className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>{e.name}{e.price ? ` ($${e.price.toLocaleString("es-AR")})` : ""}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {incluidas.length === 0 && extras.length === 0 && (
+            <p className="text-gray-500 text-sm">Sin incluir</p>
+          )}
         </motion.div>
 
         {/* Price + Payments */}
@@ -228,21 +250,6 @@ export default function ClienteProjectDetail() {
               </div>
               {(() => {
                 const badge = statusBadge[saldo ? "PAID" : "PENDING"] || statusBadge.PENDING;
-                const Icon = badge.icon;
-                return (
-                  <span className={`text-xs px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${badge.class}`}>
-                    <Icon className="w-3 h-3" /> {badge.label}
-                  </span>
-                );
-              })()}
-            </div>
-            <div className="premium-card flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Saldo final (50%)</p>
-                <p className="text-lg font-semibold">${(p.cost ? p.cost * 0.5 : 0).toLocaleString("es-AR")}</p>
-              </div>
-              {(() => {
-                const badge = statusBadge[saldo ? "PAID" : "PENDING"];
                 const Icon = badge.icon;
                 return (
                   <span className={`text-xs px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${badge.class}`}>

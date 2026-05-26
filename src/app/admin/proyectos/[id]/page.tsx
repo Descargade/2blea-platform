@@ -7,7 +7,7 @@ import { FileUpload } from "@/components/shared/file-upload";
 import { FileGallery } from "@/components/shared/file-gallery";
 import { ActivityTimeline } from "@/components/shared/activity-timeline";
 import { Modal } from "@/components/shared/modal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Save, RotateCcw, Plus, Trash2, Link2, Upload, Activity, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -169,11 +169,24 @@ export default function AdminProjectDetail() {
   const [activeTab, setActiveTab] = useState<"editor" | "files" | "links" | "activity">("editor");
   const [dirty, setDirty] = useState(false);
 
-  const [status, setStatus] = useState<string>(project?.status || "CONSULTA");
-  const [progress, setProgress] = useState(project?.progress ?? 0);
-  const [startDate, setStartDate] = useState(project?.startDate ?? "");
-  const [endDate, setEndDate] = useState(project?.endDate ?? "");
-  const [cost, setCost] = useState(project?.cost ?? 0);
+  const [status, setStatus] = useState<string>("CONSULTA");
+  const [progress, setProgress] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [cost, setCost] = useState(0);
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [newPaymentAmount, setNewPaymentAmount] = useState(0);
+  const [newPaymentType, setNewPaymentType] = useState<"ANTICIPO" | "SALDO_FINAL" | "GENERAL">("GENERAL");
+  const [newPaymentNote, setNewPaymentNote] = useState("");
+
+  useEffect(() => {
+    if (!project) return;
+    setStatus(project.status);
+    setProgress(project.progress);
+    setStartDate(project.startDate ?? "");
+    setEndDate(project.endDate ?? "");
+    setCost(project.cost ?? 0);
+  }, [project?.id]);
 
   if (isLoading) return <div className="space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-96" /><Skeleton className="h-64 w-full" /></div>;
   if (isError) return <ErrorState message="Error al cargar proyecto" onRetry={refetch} />;
@@ -184,11 +197,9 @@ export default function AdminProjectDetail() {
     startDate !== (p.startDate ?? "") || endDate !== (p.endDate ?? "") ||
     cost !== (p.cost ?? 0);
 
-  const anticipo = cost ? cost * 0.5 : 0;
-  const saldoFinal = cost ? cost * 0.5 : 0;
   const paymentsArr = p.payments || [];
-  const anticipoPaid = paymentsArr.find((pay) => pay.type === "ANTICIPO");
-  const saldoPaid = paymentsArr.find((pay) => pay.type === "SALDO_FINAL");
+  const anticipoPaid = paymentsArr.find((pay) => pay.type === "ANTICIPO" && pay.status === "PAID");
+  const saldoPaid = paymentsArr.find((pay) => pay.type === "SALDO_FINAL" && pay.status === "PAID");
 
   function handleSave() {
     updateMutation.mutate({ id, status, progress, startDate: startDate || undefined, endDate: endDate || undefined, cost: cost || undefined }, {
@@ -206,7 +217,23 @@ export default function AdminProjectDetail() {
   }
 
   async function markPaymentPaid(type: string, amount: number) {
-    await api.post(`/projects/${p.id}/payments`, { amount, type, note: `Pago ${type === "ANTICIPO" ? "anticipo" : "saldo final"}` });
+    await api.post(`/projects/${p.id}/payments`, { amount, type, note: `Pago ${type === "ANTICIPO" ? "anticipo" : type === "SALDO_FINAL" ? "saldo final" : "general"}` });
+    refetch();
+  }
+
+  async function deletePayment(paymentId: string) {
+    if (!confirm("¿Eliminar este pago?")) return;
+    await api.delete(`/projects/${p.id}/payments/${paymentId}`);
+    refetch();
+  }
+
+  async function handleAddPayment() {
+    if (!newPaymentAmount || newPaymentAmount <= 0) return;
+    await api.post(`/projects/${p.id}/payments`, { amount: newPaymentAmount, type: newPaymentType, note: newPaymentNote || undefined });
+    setShowAddPayment(false);
+    setNewPaymentAmount(0);
+    setNewPaymentType("GENERAL");
+    setNewPaymentNote("");
     refetch();
   }
 
@@ -428,48 +455,89 @@ export default function AdminProjectDetail() {
             <input type="number" min={0} value={cost} onChange={(e) => { setCost(Number(e.target.value)); setDirty(true); }} className="premium-input w-full max-w-xs" placeholder="0" />
           </motion.div>
 
-          {/* Payment Cards */}
+          {/* Payments */}
           <div>
-            <h2 className="text-sm text-gray-400 uppercase tracking-wider mb-4">Pagos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm text-gray-400 uppercase tracking-wider">Pagos</h2>
+              <button onClick={() => setShowAddPayment(true)} className="premium-button text-sm flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Agregar pago
+              </button>
+            </div>
+
+            <Modal open={showAddPayment} onClose={() => setShowAddPayment(false)} title="Agregar pago">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Tipo</label>
+                  <select value={newPaymentType} onChange={(e) => setNewPaymentType(e.target.value as any)} className="premium-input w-full">
+                    <option value="GENERAL">Pago general</option>
+                    <option value="ANTICIPO">Anticipo</option>
+                    <option value="SALDO_FINAL">Saldo final</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Monto ($)</label>
+                  <input type="number" min={1} value={newPaymentAmount} onChange={(e) => setNewPaymentAmount(Number(e.target.value))} className="premium-input w-full" placeholder="1000" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Nota (opcional)</label>
+                  <input type="text" value={newPaymentNote} onChange={(e) => setNewPaymentNote(e.target.value)} className="premium-input w-full" placeholder="Ej: Segunda cuota" />
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setShowAddPayment(false)} className="premium-button-outline text-sm">Cancelar</button>
+                  <button onClick={handleAddPayment} disabled={!newPaymentAmount || newPaymentAmount <= 0} className="premium-button text-sm">Agregar</button>
+                </div>
+              </div>
+            </Modal>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <PaymentCard
                 type="ANTICIPO"
                 label="Anticipo (50%)"
                 percentage={50}
-                amount={anticipo}
+                amount={cost ? cost * 0.5 : 0}
                 status={anticipoPaid ? "PAID" : "PENDING"}
-                onMarkPaid={() => markPaymentPaid("ANTICIPO", anticipo)}
+                onMarkPaid={() => markPaymentPaid("ANTICIPO", cost ? cost * 0.5 : 0)}
                 paymentDate={anticipoPaid?.date}
               />
               <PaymentCard
                 type="SALDO_FINAL"
                 label="Saldo final (50%)"
                 percentage={50}
-                amount={saldoFinal}
+                amount={cost ? cost * 0.5 : 0}
                 status={saldoPaid ? "PAID" : "PENDING"}
-                onMarkPaid={() => markPaymentPaid("SALDO_FINAL", saldoFinal)}
+                onMarkPaid={() => markPaymentPaid("SALDO_FINAL", cost ? cost * 0.5 : 0)}
                 paymentDate={saldoPaid?.date}
               />
             </div>
-          </div>
 
-          {/* Extra payments from history */}
-          {project.payments && project.payments.filter((p) => p.type === "GENERAL").length > 0 && (
-            <div className="premium-card">
-              <h2 className="text-sm text-gray-400 uppercase tracking-wider mb-3">Otros pagos registrados</h2>
-              <div className="space-y-2">
-                {project.payments.filter(p => p.type === "GENERAL").map((p) => (
-                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                    <div>
-                      <p className="font-medium text-green-400">+${p.amount.toLocaleString("es-AR")}</p>
-                      {p.note && <p className="text-xs text-gray-500">{p.note}</p>}
+            {paymentsArr.length > 0 && (
+              <div className="premium-card">
+                <h2 className="text-sm text-gray-400 uppercase tracking-wider mb-3">Todos los pagos registrados</h2>
+                <div className="space-y-2">
+                  {paymentsArr.map((pay) => (
+                    <div key={pay.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                      <div>
+                        <p className="font-medium text-green-400">+${pay.amount.toLocaleString("es-AR")}</p>
+                        <p className="text-xs text-gray-500">
+                          {pay.type === "ANTICIPO" ? "Anticipo" : pay.type === "SALDO_FINAL" ? "Saldo final" : "General"}
+                          {pay.note ? ` · ${pay.note}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full border ${pay.status === "PAID" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}>
+                          {pay.status === "PAID" ? "Pagado" : "Pendiente"}
+                        </span>
+                        <span className="text-xs text-gray-600">{new Date(pay.date).toLocaleDateString("es-AR")}</span>
+                        <button onClick={() => deletePayment(pay.id)} className="p-1 rounded hover:bg-white/10 transition-colors">
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-600">{new Date(p.date).toLocaleDateString("es-AR")}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
