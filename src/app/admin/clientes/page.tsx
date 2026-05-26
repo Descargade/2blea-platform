@@ -10,13 +10,20 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Modal } from "@/components/shared/modal";
 import { clientCreateSchema, type ClientCreateInput } from "@/lib/validations";
 import type { ClientListItem } from "@/types";
-import { Users, Search, Plus, Edit2 } from "lucide-react";
+import { Users, Search, Plus, Edit2, Key, RotateCcw, Eye, EyeOff, Copy } from "lucide-react";
+import api from "@/lib/api";
 
 export default function AdminClientes() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<ClientListItem | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [revealPw, setRevealPw] = useState(false);
+  const [pwClientId, setPwClientId] = useState<string | null>(null);
+  const [pwValue, setPwValue] = useState("");
+  const [regeneratingPw, setRegeneratingPw] = useState(false);
+
   const { data: clients, isLoading, isError, refetch } = useClients();
   const createMutation = useCreateClient();
   const updateMutation = useUpdateClient();
@@ -34,6 +41,8 @@ export default function AdminClientes() {
   async function onSubmit(data: ClientCreateInput) {
     const res = await createMutation.mutateAsync(data);
     setGeneratedPassword(res?.rawPassword || "");
+    setRevealPw(true);
+    setCopied(false);
     form.reset();
   }
 
@@ -52,6 +61,26 @@ export default function AdminClientes() {
     const data = editForm.getValues();
     await updateMutation.mutateAsync({ id: editing.id, ...data });
     setEditing(null);
+  }
+
+  async function handleRegeneratePassword(clientId: string) {
+    setRegeneratingPw(true);
+    try {
+      const { data: res } = await api.post(`/clients/${clientId}/regenerate-password`);
+      const pw = res?.data?.rawPassword || "";
+      setPwClientId(clientId);
+      setPwValue(pw);
+      setCopied(false);
+    } catch {
+      setPwValue("Error al generar");
+    }
+    setRegeneratingPw(false);
+  }
+
+  function handleCopy(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const list: ClientListItem[] = Array.isArray(clients) ? clients : [];
@@ -76,7 +105,8 @@ export default function AdminClientes() {
         }
       />
 
-      <Modal open={showModal} onClose={() => { setShowModal(false); form.reset(); setGeneratedPassword(""); }} title="Nuevo cliente">
+      {/* Create Modal */}
+      <Modal open={showModal} onClose={() => { setShowModal(false); form.reset(); setGeneratedPassword(""); setRevealPw(false); }} title="Nuevo cliente">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Nombre</label>
@@ -99,11 +129,27 @@ export default function AdminClientes() {
           {generatedPassword ? (
             <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
               <p className="text-sm text-green-400 font-semibold mb-1">Cliente creado</p>
-              <p className="text-xs text-gray-400 mb-1">Contraseña autogenerada (guardala para compartir):</p>
-              <p className="text-lg font-mono font-bold text-white select-all">{generatedPassword}</p>
-              <button type="button" onClick={() => { setShowModal(false); form.reset(); setGeneratedPassword(""); }} className="premium-button text-sm w-full mt-3">
-                Cerrar
-              </button>
+              <p className="text-xs text-gray-400 mb-1">Contraseña autogenerada:</p>
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-mono font-bold text-white select-all flex-1 break-all">
+                  {revealPw ? generatedPassword : "••••••••••"}
+                </p>
+                <button type="button" onClick={() => setRevealPw(!revealPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                  {revealPw ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
+                </button>
+                <button type="button" onClick={() => handleCopy(generatedPassword)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                  <Copy className="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <button type="button" onClick={() => { setShowModal(false); form.reset(); setGeneratedPassword(""); setRevealPw(false); }} className="premium-button text-sm flex-1">
+                  Cerrar
+                </button>
+                <button type="button" onClick={form.handleSubmit(onSubmit)} className="premium-button-outline text-sm flex items-center gap-2">
+                  <RotateCcw className="w-4 h-4" />
+                  Regenerar
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex justify-end gap-3 pt-2">
@@ -118,6 +164,7 @@ export default function AdminClientes() {
         </form>
       </Modal>
 
+      {/* Edit Modal */}
       <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar cliente">
         <div className="space-y-4">
           <div>
@@ -140,6 +187,40 @@ export default function AdminClientes() {
             <button type="button" onClick={() => setEditing(null)} className="premium-button-outline text-sm">Cancelar</button>
             <button onClick={handleEditSave} disabled={updateMutation.isPending} className="premium-button text-sm">
               {updateMutation.isPending ? "Guardando..." : "Guardar cambios"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Password Modal */}
+      <Modal open={!!pwClientId} onClose={() => { setPwClientId(null); setPwValue(""); setCopied(false); }} title="Contraseña del cliente">
+        <div className="space-y-4">
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-xs text-gray-400 mb-1">Contraseña actual</p>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-mono font-bold text-white select-all flex-1 break-all">
+                {revealPw ? pwValue : "••••••••••"}
+              </p>
+              <button onClick={() => setRevealPw(!revealPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                {revealPw ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
+              </button>
+              <button onClick={() => handleCopy(pwValue)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                <Copy className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+            {copied && <p className="text-xs text-green-400 mt-1">¡Copiado!</p>}
+          </div>
+          <button
+            onClick={() => { if (pwClientId) handleRegeneratePassword(pwClientId); }}
+            disabled={regeneratingPw}
+            className="premium-button w-full flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {regeneratingPw ? "Regenerando..." : "Regenerar contraseña"}
+          </button>
+          <div className="flex justify-end pt-2">
+            <button onClick={() => { setPwClientId(null); setPwValue(""); setCopied(false); }} className="premium-button-outline text-sm">
+              Cerrar
             </button>
           </div>
         </div>
@@ -182,6 +263,14 @@ export default function AdminClientes() {
                     <td className="p-4 text-gray-400">{client.company || "---"}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => { setPwClientId(client.id); setPwValue(""); setRevealPw(false); setCopied(false); handleRegeneratePassword(client.id); }}
+                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                          aria-label="Ver contraseña"
+                          title="Ver contraseña"
+                        >
+                          <Key className="w-4 h-4 text-gray-400" />
+                        </button>
                         <button onClick={() => openEdit(client)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label={`Editar cliente ${client.user?.name}`}>
                           <Edit2 className="w-4 h-4 text-gray-400" />
                         </button>

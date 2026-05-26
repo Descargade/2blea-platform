@@ -8,32 +8,18 @@ import { Shield, Phone, Mail, Info, ExternalLink, Key, Copy, Eye, EyeOff } from 
 import api from "@/lib/api";
 
 export default function ClienteConfiguracion() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [showPassword, setShowPassword] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [regenerating, setRegenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [currentRawPw, setCurrentRawPw] = useState("");
   const [revealPw, setRevealPw] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    api.get("/profile").then(({ data }) => {
-      if (data.data?.rawPassword) setCurrentRawPw(data.data.rawPassword);
+    api.get("/profile").then(({ data: res }) => {
+      const pw = res?.data?.rawPassword || "";
+      if (pw) setCurrentRawPw(pw);
     }).catch(() => {});
   }, []);
-
-  async function handleRegenerate() {
-    setRegenerating(true);
-    try {
-      const { data } = await api.post("/profile/regenerate-password");
-      const pw = data.data?.rawPassword || "";
-      setNewPassword(pw);
-      setCurrentRawPw(pw);
-    } catch {
-      setNewPassword("Error al generar contraseña");
-    }
-    setRegenerating(false);
-  }
 
   function handleCopy(text: string) {
     navigator.clipboard.writeText(text);
@@ -51,7 +37,7 @@ export default function ClienteConfiguracion() {
     <div>
       <PageHeader title="Configuración" description="Datos de tu cuenta y soporte" />
 
-      <Modal open={showPassword} onClose={() => { setShowPassword(false); setNewPassword(""); setCopied(false); setRevealPw(false); }} title="Credenciales de acceso">
+      <Modal open={showPassword} onClose={() => { setShowPassword(false); setCopied(false); setRevealPw(false); }} title="Credenciales de acceso">
         <div className="space-y-4">
           <div className="bg-white/5 rounded-xl p-4 space-y-3">
             <div>
@@ -59,45 +45,29 @@ export default function ClienteConfiguracion() {
               <p className="text-white font-mono text-lg">{user?.email}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Contraseña actual</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Contraseña</p>
               <div className="flex items-center gap-2">
-                <p className="text-white font-mono text-lg select-all flex-1">
-                  {revealPw && currentRawPw ? currentRawPw : "••••••••••"}
+                <p className="text-white font-mono text-lg select-all flex-1 break-all">
+                  {revealPw ? (currentRawPw || "No disponible") : "••••••••••"}
                 </p>
-                <button onClick={() => setRevealPw(!revealPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Mostrar/ocultar contraseña">
-                  {revealPw ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
-                </button>
                 {currentRawPw && (
-                  <button onClick={() => handleCopy(currentRawPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Copiar contraseña">
-                    <Copy className="w-4 h-4 text-gray-400" />
-                  </button>
+                  <>
+                    <button onClick={() => setRevealPw(!revealPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Mostrar/ocultar contraseña">
+                      {revealPw ? <EyeOff className="w-4 h-4 text-gray-400" /> : <Eye className="w-4 h-4 text-gray-400" />}
+                    </button>
+                    <button onClick={() => handleCopy(currentRawPw)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Copiar contraseña">
+                      <Copy className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </>
                 )}
               </div>
               {copied && <p className="text-xs text-green-400 mt-1">¡Copiado!</p>}
+              {!currentRawPw && <p className="text-xs text-gray-500 mt-1">Comunicate con el administrador para recuperar tu contraseña.</p>}
             </div>
           </div>
 
-          {newPassword && newPassword !== currentRawPw && (
-            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-              <p className="text-sm text-green-400 font-semibold mb-2">Nueva contraseña generada</p>
-              <div className="flex items-center gap-2">
-                <p className="text-lg font-mono font-bold text-white select-all flex-1">{newPassword}</p>
-                <button onClick={() => handleCopy(newPassword)} className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Copiar contraseña">
-                  <Copy className="w-4 h-4 text-gray-400" />
-                </button>
-              </div>
-              {copied && <p className="text-xs text-green-400 mt-1">¡Copiado!</p>}
-              <p className="text-xs text-gray-500 mt-2">Guardala en un lugar seguro.</p>
-            </div>
-          )}
-
-          <button onClick={handleRegenerate} disabled={regenerating} className="premium-button w-full flex items-center justify-center gap-2">
-            <Key className="w-4 h-4" />
-            {regenerating ? "Generando..." : "Generar nueva contraseña"}
-          </button>
-
           <div className="flex justify-end pt-2">
-            <button onClick={() => { setShowPassword(false); setNewPassword(""); setCopied(false); setRevealPw(false); }} className="premium-button-outline text-sm">
+            <button onClick={() => { setShowPassword(false); setCopied(false); setRevealPw(false); }} className="premium-button-outline text-sm">
               Cerrar
             </button>
           </div>
@@ -123,7 +93,7 @@ export default function ClienteConfiguracion() {
 
           <button onClick={() => setShowPassword(true)} className="premium-button-outline w-full flex items-center justify-center gap-2">
             <Key className="w-4 h-4" />
-            Ver / regenerar contraseña
+            Ver contraseña
           </button>
         </div>
 
