@@ -70,9 +70,9 @@ async function main() {
 
   // ── Servicios ──
   const extraLogin = { name: "Login de usuarios", price: 10000 };
-  const extraPanel = { name: "Panel administrador", price: 30000 };
-  const extraDB = { name: "Base de datos", price: 60000 };
-  const extraHosting = { name: "Hosting / configuración", price: 15000 };
+  const extraPanel = { name: "Panel administrador", price: 50000 };
+  const extraDB = { name: "Base de datos", price: 80000 };
+  const extraHosting = { name: "Hosting / configuración", price: 30000 };
   const extraTurnos = { name: "Sistema de turnos Incluido", price: 10000 };
   const extraConfirm = { name: "Confirmación automática", price: 10000 };
 
