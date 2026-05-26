@@ -271,10 +271,16 @@ export default function ClienteProjectDetail() {
         {p.files && p.files.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {p.files.map((f) => (
-              <div key={f.id} className="glass rounded-xl p-4 text-center hover:bg-white/10 transition-colors">
+              <a
+                key={f.id}
+                href={`/api/upload/${f.key}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass rounded-xl p-4 text-center hover:bg-white/10 transition-colors block"
+              >
                 <p className="text-sm font-medium truncate" title={f.originalName}>{f.originalName}</p>
                 <p className="text-xs text-gray-500 mt-1">{(f.size / 1024).toFixed(1)} KB</p>
-              </div>
+              </a>
             ))}
           </div>
         ) : (

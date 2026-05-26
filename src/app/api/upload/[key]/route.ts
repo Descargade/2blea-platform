@@ -20,6 +20,11 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Archivo no encontrado" }, { status: 404 });
     }
 
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+      const url = storage.getUrl(key);
+      return NextResponse.redirect(url);
+    }
+
     const { buffer } = await storage.read(key);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {

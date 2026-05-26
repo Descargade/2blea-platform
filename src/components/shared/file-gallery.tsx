@@ -64,7 +64,7 @@ export function FileGallery({ projectId }: FileGalleryProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (key: string) => {
-      await api.delete(`/upload/${key}`);
+      await api.delete(`/api/upload/${key}`);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["project-files", projectId] });

@@ -183,8 +183,8 @@ export default function AdminProjectDetail() {
     if (!project) return;
     setStatus(project.status);
     setProgress(project.progress);
-    setStartDate(project.startDate ?? "");
-    setEndDate(project.endDate ?? "");
+    setStartDate((project.startDate || "").split("T")[0] ?? "");
+    setEndDate((project.endDate || "").split("T")[0] ?? "");
     setCost(project.cost ?? 0);
   }, [project?.id]);
 
@@ -210,8 +210,8 @@ export default function AdminProjectDetail() {
   function handleRestore() {
     setStatus(p.status);
     setProgress(p.progress);
-    setStartDate(p.startDate ?? "");
-    setEndDate(p.endDate ?? "");
+    setStartDate(p.startDate ? String(p.startDate).split("T")[0] ?? "" : "");
+    setEndDate(p.endDate ? String(p.endDate).split("T")[0] ?? "" : "");
     setCost(p.cost ?? 0);
     setDirty(false);
   }
