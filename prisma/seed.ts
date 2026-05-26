@@ -64,6 +64,10 @@ async function main() {
   });
   console.log(`  ✓ Cliente: ${clienteUser.email}`);
 
+  // ── Limpiar extras viejos antes de recrear ──
+  await prisma.extra.deleteMany({});
+  console.log(`  ✓ Extras viejos limpiados`);
+
   // ── Servicios ──
   const extraLogin = { name: "Login de usuarios", price: 10000 };
   const extraPanel = { name: "Panel administrador", price: 30000 };
