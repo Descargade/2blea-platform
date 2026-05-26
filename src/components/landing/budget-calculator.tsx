@@ -235,8 +235,11 @@ export function BudgetCalculator() {
               )}
             </div>
 
-            <AnimatePresence>
-              {selectedServiceData && (
+            {(() => {
+              if (!selectedServiceData) return null;
+              const service = selectedServiceData;
+              return (
+              <AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -245,11 +248,11 @@ export function BudgetCalculator() {
                 >
                   <h3 className="text-lg font-semibold mb-6">2. Extras</h3>
 
-                  {selectedServiceData.extras?.length > 0 && (
+                  {service.extras?.length > 0 && (
                     <>
                       <p className="text-sm text-gray-400 mb-3">Opcionales para agregar:</p>
                       <div className="space-y-2 mb-6">
-                        {selectedServiceData.extras.map((extra) => (
+                        {service.extras.map((extra) => (
                           <button
                             key={extra.id}
                             type="button"
@@ -283,11 +286,11 @@ export function BudgetCalculator() {
                     </>
                   )}
 
-                  {INCLUDED_EXTRAS[selectedServiceData.name]?.length > 0 && (
+                  {INCLUDED_EXTRAS[service.name]?.length > 0 && (
                     <div className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
                       <p className="text-sm text-green-400 mb-2">✓ Incluidos en el servicio:</p>
                       <div className="flex flex-wrap gap-2">
-                        {INCLUDED_EXTRAS[selectedServiceData.name].map((name) => (
+                        {INCLUDED_EXTRAS[service.name].map((name) => (
                           <span key={name} className="text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-300">
                             {name}
                           </span>
@@ -296,8 +299,8 @@ export function BudgetCalculator() {
                     </div>
                   )}
                 </motion.div>
-              )}
-            </AnimatePresence>
+              </AnimatePresence>
+              )})()}
 
             <div className="premium-card">
               <h3 className="text-lg font-semibold mb-6">3. Tus datos</h3>
