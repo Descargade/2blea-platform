@@ -38,6 +38,7 @@ export async function POST(req: Request) {
           channels.push(CHANNELS.user(conversation.client.user.id));
         }
       } else {
+        channels.push(CHANNELS.admin);
         const admins = await prisma.user.findMany({
           where: { role: "ADMIN", deletedAt: null },
           select: { id: true },

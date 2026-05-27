@@ -1,11 +1,12 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useConversations, useSendMessage } from "@/hooks/queries/use-messages";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/shared/loading";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
+import { useRealtimeMessages, type RealtimeMessage } from "@/hooks/use-realtime";
 import type { ConversationItem, MessageItem } from "@/types";
 import { MessageSquare } from "lucide-react";
 
@@ -13,12 +14,41 @@ export default function ClienteMensajes() {
   const { data: session } = useSession();
   const uid = session?.user?.id;
   const [content, setContent] = useState("");
+  const [localMessages, setLocalMessages] = useState<Record<string, MessageItem[]>>({});
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { data: convs, isLoading, isError, refetch } = useConversations();
   const sendMutation = useSendMessage();
 
   const list: ConversationItem[] = Array.isArray(convs) ? convs : [];
   const activeConv = list[0];
-  const messages: MessageItem[] = activeConv?.messages || [];
+  const messages: MessageItem[] = activeConv ? (localMessages[activeConv.id] ?? activeConv.messages ?? []) : [];
+
+  useRealtimeMessages(uid ?? "", "CLIENTE", useCallback((msg: RealtimeMessage) => {
+    if (!activeConv) return;
+    if (msg.conversationId === activeConv.id) {
+      setLocalMessages((prev) => {
+        const key = msg.conversationId;
+        const existing = prev[key] ?? activeConv.messages ?? [];
+        if (existing.some((m) => m.id === msg.id)) return prev;
+        return { ...prev, [key]: [...existing, msg as MessageItem] };
+      });
+    }
+  }, [activeConv]));
+
+  useEffect(() => {
+    if (!activeConv) return;
+    setLocalMessages((prev) => {
+      if (prev[activeConv.id]) return prev;
+      return { ...prev, [activeConv.id]: activeConv.messages ?? [] };
+    });
+  }, [activeConv?.id]);
+
+  // Auto scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages.length]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +65,7 @@ export default function ClienteMensajes() {
     <div>
       <PageHeader title="Mensajes" />
       <div className="premium-card p-0 flex flex-col h-[600px]">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {isLoading ? (
             <div className="space-y-4 pt-16">
               {Array.from({ length: 4 }).map((_, i) => (
