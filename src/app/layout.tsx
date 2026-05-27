@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     "catálogo online",
     "2bleA",
   ],
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     type: "website",
     locale: "es_AR",

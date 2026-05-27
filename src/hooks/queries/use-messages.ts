@@ -25,3 +25,14 @@ export function useSendMessage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["conversations"] }),
   });
 }
+
+export function useCreateConversation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input?: { clientId?: string }) => {
+      const { data } = await api.post("/conversations", input ?? {});
+      return data.data ?? data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["conversations"] }),
+  });
+}

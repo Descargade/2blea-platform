@@ -1,14 +1,13 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useConversations, useSendMessage } from "@/hooks/queries/use-messages";
+import { useConversations, useSendMessage, useCreateConversation } from "@/hooks/queries/use-messages";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/shared/loading";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { useRealtimeMessages, type RealtimeMessage } from "@/hooks/use-realtime";
 import type { ConversationItem, MessageItem } from "@/types";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Send } from "lucide-react";
 
 export default function ClienteMensajes() {
   const { data: session } = useSession();
@@ -18,6 +17,7 @@ export default function ClienteMensajes() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: convs, isLoading, isError, refetch } = useConversations();
   const sendMutation = useSendMessage();
+  const createConv = useCreateConversation();
 
   const list: ConversationItem[] = Array.isArray(convs) ? convs : [];
   const activeConv = list[0];
@@ -74,8 +74,21 @@ export default function ClienteMensajes() {
                 </div>
               ))}
             </div>
-          ) : messages.length === 0 ? (
-            <EmptyState icon={<MessageSquare className="w-12 h-12" />} title="No hay mensajes todavía" description="Envía un mensaje para comenzar la conversación" />
+          ) : messages.length === 0 && !activeConv ? (
+            <div className="flex flex-col items-center justify-center h-full gap-6">
+              <MessageSquare className="w-16 h-16 text-gray-600" />
+              <div className="text-center">
+                <p className="text-gray-400 text-lg font-medium mb-1">No tenés conversaciones</p>
+                <p className="text-gray-600 text-sm">Iniciá una conversación con el equipo de 2bleA</p>
+              </div>
+              <button
+                onClick={() => createConv.mutate(undefined, { onSuccess: () => { refetch(); } })}
+                disabled={createConv.isPending}
+                className="premium-button px-6 py-3"
+              >
+                {createConv.isPending ? "Creando..." : "Iniciar conversación"}
+              </button>
+            </div>
           ) : (
             messages.map((m) => (
               <div key={m.id} className={`flex ${m.senderId === uid ? "justify-end" : "justify-start"}`}>

@@ -1,7 +1,8 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useConversations, useSendMessage } from "@/hooks/queries/use-messages";
+import { useConversations, useSendMessage, useCreateConversation } from "@/hooks/queries/use-messages";
+import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/shared/loading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -10,7 +11,8 @@ import { TypingIndicator } from "@/components/shared/typing-indicator";
 import { useRealtimeMessages, type RealtimeMessage } from "@/hooks/use-realtime";
 import { useConversationTyping } from "@/hooks/use-realtime-typing";
 import type { ConversationItem, MessageItem } from "@/types";
-import { MessageSquare, Send, CheckCheck } from "lucide-react";
+import { MessageSquare, Send, CheckCheck, Plus, X } from "lucide-react";
+import api from "@/lib/api";
 
 export default function AdminMensajes() {
   const { data: session } = useSession();
@@ -18,9 +20,20 @@ export default function AdminMensajes() {
   const [selected, setSelected] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [localMessages, setLocalMessages] = useState<Record<string, MessageItem[]>>({});
+  const [showNewConv, setShowNewConv] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: convs, isLoading, isError, refetch } = useConversations();
   const sendMutation = useSendMessage();
+  const createConv = useCreateConversation();
+
+  const { data: clients } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const { data } = await api.get("/clients");
+      return data.data ?? data;
+    },
+    enabled: showNewConv,
+  });
 
   const list: ConversationItem[] = Array.isArray(convs) ? convs : [];
   const activeConv = list.find((c) => c.id === selected) || list[0];
@@ -100,7 +113,43 @@ export default function AdminMensajes() {
       <PageHeader title="Mensajes" />
       <div className="flex gap-6 h-[600px]">
         <div className="w-80 premium-card p-0 overflow-y-auto flex-shrink-0">
-          {isLoading ? (
+          <div className="p-3 border-b border-white/5 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-400">Conversaciones</span>
+            <button
+              onClick={() => setShowNewConv(!showNewConv)}
+              className="text-premium-accent hover:text-white transition-colors"
+              aria-label="Nueva conversación"
+            >
+              {showNewConv ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            </button>
+          </div>
+          {showNewConv ? (
+            <div className="p-3 space-y-1">
+              <p className="text-xs text-gray-500 mb-2">Seleccioná un cliente:</p>
+              {!clients ? (
+                <p className="text-xs text-gray-600">Cargando...</p>
+              ) : (
+                (Array.isArray(clients) ? clients : []).map((c: { id: string; user: { id: string; name: string; email: string } }) => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      createConv.mutate({ clientId: c.id }, {
+                        onSuccess: (conv: ConversationItem) => {
+                          setSelected(conv.id);
+                          setShowNewConv(false);
+                          setLocalMessages({});
+                        },
+                      });
+                    }}
+                    className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors text-sm"
+                  >
+                    <p className="font-medium">{c.user.name}</p>
+                    <p className="text-xs text-gray-600">{c.user.email}</p>
+                  </button>
+                ))
+              )}
+            </div>
+          ) : isLoading ? (
             <div className="p-4 space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="space-y-2">

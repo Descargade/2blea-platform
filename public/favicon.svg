@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6D28D9"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8B5CF6" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="256" height="256" rx="64" fill="#050510"/>
+
+  <!-- Glow -->
+  <circle cx="128" cy="128" r="80" fill="url(#bg)" opacity="0.25"/>
+
+  <!-- Símbolo -->
+  <g filter="url(#shadow)">
+    <path
+      d="M78 78H128C160 78 178 96 178 122C178 148 160 166 128 166H102V198H78V78ZM124 144C141 144 152 136 152 122C152 108 141 100 124 100H102V144H124Z"
+      fill="url(#glow)"
+    />
+
+    <path
+      d="M138 138L190 190"
+      stroke="url(#glow)"
+      stroke-width="18"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>
