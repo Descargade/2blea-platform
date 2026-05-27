@@ -18,6 +18,7 @@ const navItems = [
   { href: "/admin/clientes", label: "Clientes", icon: "CL" },
   { href: "/admin/proyectos", label: "Proyectos", icon: "PR" },
   { href: "/admin/servicios", label: "Servicios", icon: "SV" },
+  { href: "/admin/extras", label: "Extras", icon: "EX" },
   { href: "/admin/ofertas", label: "Ofertas", icon: "OF" },
   { href: "/admin/mensajes", label: "Mensajes", icon: "MS" },
 ];
