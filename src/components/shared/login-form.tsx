@@ -53,10 +53,10 @@ export default function LoginForm({ redirectTo }: LoginFormProps) {
         style={{ animationDelay: "2s" }}
       />
 
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="text-center mb-10">
+      <div className="relative z-10 w-full max-w-md mx-3 sm:mx-4">
+        <div className="text-center mb-6 sm:mb-10">
           <motion.h1
-            className="text-5xl font-bold text-gradient mb-2"
+            className="text-4xl sm:text-5xl font-bold text-gradient mb-1 sm:mb-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -74,12 +74,12 @@ export default function LoginForm({ redirectTo }: LoginFormProps) {
         </div>
 
         <motion.div
-          className="glass rounded-2xl p-8 border border-white/5"
+          className="glass rounded-2xl p-5 sm:p-8 border border-white/5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}

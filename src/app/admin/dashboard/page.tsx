@@ -48,8 +48,8 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1">Dashboard</h1>
         <p className="text-gray-400">Bienvenido, {session?.user?.name}</p>
       </div>
       {isLoading ? <StatsGridSkeleton /> : (

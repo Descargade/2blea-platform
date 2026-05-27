@@ -97,13 +97,13 @@ export default function ClienteProjectDetail() {
       </motion.div>
 
       {/* Header */}
-      <motion.div variants={itemAnim} className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">{p.name}</h1>
+      <motion.div variants={itemAnim} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1 break-words">{p.name}</h1>
           <p className="text-gray-400">{p.description}</p>
           {p.service && <p className="text-sm text-gray-500 mt-1">Servicio: {p.service.name}</p>}
         </div>
-        <span className={`text-sm px-3 py-1.5 rounded-full border bg-gradient-to-r ${gradientForStage[p.status] || "from-premium-violet to-premium-accent"} text-white`}>
+        <span className={`text-sm px-3 py-1.5 rounded-full border bg-gradient-to-r ${gradientForStage[p.status] || "from-premium-violet to-premium-accent"} text-white w-fit shrink-0`}>
           {currentStage.label}
         </span>
       </motion.div>

@@ -10,7 +10,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Modal } from "@/components/shared/modal";
 import { clientCreateSchema, type ClientCreateInput } from "@/lib/validations";
 import type { ClientListItem } from "@/types";
-import { Users, Search, Plus, Edit2, Key, RotateCcw, Eye, EyeOff, Copy } from "lucide-react";
+import { Users, Search, Plus, Edit2, Key, RotateCcw, Eye, EyeOff, Copy, Trash2 } from "lucide-react";
 import api from "@/lib/api";
 
 export default function AdminClientes() {
@@ -255,47 +255,74 @@ export default function AdminClientes() {
         {isLoading ? <TableSkeleton rows={4} /> : filtered.length === 0 ? (
           <EmptyState icon={<Users className="w-12 h-12" />} title="No se encontraron clientes" description={search ? "Intenta con otros términos de búsqueda" : "No hay clientes registrados aún"} />
         ) : (
-          <div className="overflow-x-auto" role="table" aria-label="Lista de clientes">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10 text-left text-sm text-gray-400">
-                  <th className="p-4 font-medium" scope="col">Nombre</th>
-                  <th className="p-4 font-medium" scope="col">Email</th>
-                  <th className="p-4 font-medium" scope="col">Teléfono</th>
-                  <th className="p-4 font-medium" scope="col">Empresa</th>
-                  <th className="p-4 font-medium" scope="col">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((client) => (
-                  <tr key={client.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-medium">{client.user?.name || "---"}</td>
-                    <td className="p-4 text-gray-400">{client.user?.email || "---"}</td>
-                    <td className="p-4 text-gray-400">{client.phone || "---"}</td>
-                    <td className="p-4 text-gray-400">{client.company || "---"}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleViewPassword(client.id)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                          aria-label="Ver contraseña"
-                          title="Ver contraseña"
-                        >
-                          <Key className="w-4 h-4 text-gray-400" />
-                        </button>
-                        <button onClick={() => openEdit(client)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label={`Editar cliente ${client.user?.name}`}>
-                          <Edit2 className="w-4 h-4 text-gray-400" />
-                        </button>
-                        <button onClick={() => { if (confirm("¿Eliminar este cliente?")) deleteMutation.mutate(client.id); }} className="text-red-400 hover:text-red-300 text-sm transition-colors" aria-label={`Eliminar cliente ${client.user?.name}`}>
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto" role="table" aria-label="Lista de clientes">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10 text-left text-sm text-gray-400">
+                    <th className="p-4 font-medium" scope="col">Nombre</th>
+                    <th className="p-4 font-medium" scope="col">Email</th>
+                    <th className="p-4 font-medium" scope="col">Teléfono</th>
+                    <th className="p-4 font-medium" scope="col">Empresa</th>
+                    <th className="p-4 font-medium" scope="col">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filtered.map((client) => (
+                    <tr key={client.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="p-4 font-medium">{client.user?.name || "---"}</td>
+                      <td className="p-4 text-gray-400">{client.user?.email || "---"}</td>
+                      <td className="p-4 text-gray-400">{client.phone || "---"}</td>
+                      <td className="p-4 text-gray-400">{client.company || "---"}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => handleViewPassword(client.id)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label="Ver contraseña" title="Ver contraseña">
+                            <Key className="w-4 h-4 text-gray-400" />
+                          </button>
+                          <button onClick={() => openEdit(client)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label={`Editar cliente ${client.user?.name}`}>
+                            <Edit2 className="w-4 h-4 text-gray-400" />
+                          </button>
+                          <button onClick={() => { if (confirm("¿Eliminar este cliente?")) deleteMutation.mutate(client.id); }} className="text-red-400 hover:text-red-300 text-sm transition-colors" aria-label={`Eliminar cliente ${client.user?.name}`}>
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="md:hidden divide-y divide-white/5">
+              {filtered.map((client) => (
+                <div key={client.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{client.user?.name || "---"}</p>
+                      <p className="text-sm text-gray-400 truncate">{client.user?.email || "---"}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 ml-2">
+                      <button onClick={() => handleViewPassword(client.id)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label="Ver contraseña">
+                        <Key className="w-4 h-4 text-gray-400" />
+                      </button>
+                      <button onClick={() => openEdit(client)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" aria-label="Editar">
+                        <Edit2 className="w-4 h-4 text-gray-400" />
+                      </button>
+                      <button onClick={() => { if (confirm("¿Eliminar este cliente?")) deleteMutation.mutate(client.id); }} className="p-1.5 rounded-lg hover:bg-red-500/10 transition-colors" aria-label="Eliminar">
+                        <Trash2 className="w-4 h-4 text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 text-xs text-gray-500">
+                    {client.phone && <span>{client.phone}</span>}
+                    {client.company && <span>{client.company}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

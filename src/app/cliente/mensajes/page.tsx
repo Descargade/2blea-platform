@@ -64,8 +64,8 @@ export default function ClienteMensajes() {
   return (
     <div>
       <PageHeader title="Mensajes" />
-      <div className="premium-card p-0 flex flex-col h-[600px]">
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="premium-card p-0 flex flex-col h-[calc(100dvh-12rem)] min-h-[350px]">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4">
           {isLoading ? (
             <div className="space-y-4 pt-16">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -107,8 +107,8 @@ export default function ClienteMensajes() {
           )}
         </div>
         {activeConv && (
-          <div className="border-t border-white/10 p-4">
-            <form onSubmit={handleSend} className="flex gap-3">
+          <div className="border-t border-white/10 p-2 sm:p-4">
+            <form onSubmit={handleSend} className="flex gap-2 sm:gap-3">
               <input
                 type="text"
                 value={content}

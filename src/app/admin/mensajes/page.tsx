@@ -21,6 +21,7 @@ export default function AdminMensajes() {
   const [content, setContent] = useState("");
   const [localMessages, setLocalMessages] = useState<Record<string, MessageItem[]>>({});
   const [showNewConv, setShowNewConv] = useState(false);
+  const [showMobileList, setShowMobileList] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: convs, isLoading, isError, refetch } = useConversations();
   const sendMutation = useSendMessage();
@@ -111,8 +112,9 @@ export default function AdminMensajes() {
   return (
     <div>
       <PageHeader title="Mensajes" />
-      <div className="flex gap-6 h-[600px]">
-        <div className="w-80 premium-card p-0 overflow-y-auto flex-shrink-0">
+      <div className="flex flex-col lg:flex-row gap-0 lg:gap-6 h-[calc(100dvh-11rem)] min-h-[350px] lg:min-h-[600px]">
+        {/* Conversations sidebar */}
+        <div className={`${showMobileList ? "flex" : "hidden"} lg:flex flex-col w-full lg:w-80 premium-card p-0 overflow-y-auto flex-shrink-0 ${activeConv ? "lg:block" : ""}`}>
           <div className="p-3 border-b border-white/5 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-400">Conversaciones</span>
             <button
@@ -168,7 +170,7 @@ export default function AdminMensajes() {
               return (
                 <button
                   key={c.id}
-                  onClick={() => { setSelected(c.id); setLocalMessages({}); }}
+                  onClick={() => { setSelected(c.id); setLocalMessages({}); setShowMobileList(false); }}
                   className={`w-full text-left p-4 border-b border-white/5 hover:bg-white/5 transition-colors ${activeConv?.id === c.id ? "bg-white/10" : ""}`}
                   aria-label={`Conversación con ${c.client?.user?.name || "Cliente"}`}
                 >
@@ -192,19 +194,28 @@ export default function AdminMensajes() {
           )}
         </div>
 
-        <div className="flex-1 premium-card p-0 flex flex-col">
+        <div className={`${showMobileList && activeConv ? "hidden" : "flex"} lg:flex flex-1 premium-card p-0 flex flex-col`}>
           {!activeConv ? (
             <div className="flex-1 flex items-center justify-center">
               <p className="text-gray-500">Seleccioná una conversación</p>
             </div>
           ) : (
             <>
-              <div className="border-b border-white/10 px-6 py-4">
-                <p className="font-semibold">{activeConv.client?.user?.name || "Cliente"}</p>
-                <p className="text-xs text-gray-500">{activeConv.project?.name}</p>
+              <div className="border-b border-white/10 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
+                <button
+                  onClick={() => setShowMobileList(true)}
+                  className="lg:hidden text-gray-400 hover:text-white transition-colors"
+                  aria-label="Volver a conversaciones"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <div>
+                  <p className="font-semibold">{activeConv.client?.user?.name || "Cliente"}</p>
+                  <p className="text-xs text-gray-500">{activeConv.project?.name}</p>
+                </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-3">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3">
                 {messages.length === 0 ? (
                   <p className="text-gray-500 text-center pt-16">No hay mensajes aún</p>
                 ) : (
@@ -233,8 +244,8 @@ export default function AdminMensajes() {
                 <TypingIndicator names={typingUsers.map((u) => u.name)} />
               </div>
 
-              <div className="border-t border-white/10 p-4">
-                <form onSubmit={handleSend} className="flex gap-3">
+              <div className="border-t border-white/10 p-2 sm:p-4">
+                <form onSubmit={handleSend} className="flex gap-2 sm:gap-3">
                   <input
                     type="text"
                     value={content}

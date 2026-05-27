@@ -86,12 +86,12 @@ export function OffersSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-32 overflow-hidden"
+      className="relative py-16 sm:py-24 lg:py-32 overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-premium-darker via-premium-black to-premium-darker" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-premium-violet/30 to-transparent" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
           <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-sm text-premium-accent mb-4">
             <Sparkles className="w-4 h-4" />

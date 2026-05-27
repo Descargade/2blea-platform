@@ -73,10 +73,10 @@ export function ServicesSection() {
     <section
       id="servicios"
       ref={sectionRef}
-      className="relative py-32 overflow-hidden"
+      className="relative py-16 sm:py-24 lg:py-32 overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-premium-black via-premium-darker/50 to-premium-black" />
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <div ref={titleRef} className="text-center mb-16">
           <motion.span
             className="text-premium-accent text-sm uppercase tracking-[0.2em] mb-4 block"

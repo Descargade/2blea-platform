@@ -90,7 +90,7 @@ export function HeroSection() {
         style={{ animationDelay: "2s" }}
       />
 
-      <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
+      <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6">
         <motion.div
           className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-sm text-gray-400"
           initial={{ opacity: 0, y: 20 }}
@@ -149,7 +149,7 @@ export function HeroSection() {
           </a>
         </div>
 
-        <div className="mt-16 flex items-center justify-center gap-8 text-gray-500 text-sm">
+        <div className="mt-16 flex items-center justify-center gap-3 sm:gap-8 text-gray-500 text-sm flex-wrap">
           {["Desarrollo Web", "Diseño UI/UX", "E-commerce", "Sistemas"].map(
             (tag) => (
               <span key={tag} className="glass rounded-full px-3 py-1.5 text-xs">

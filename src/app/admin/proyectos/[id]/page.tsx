@@ -250,7 +250,7 @@ export default function AdminProjectDetail() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <Link href="/admin/proyectos" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4" /> Volver a proyectos
         </Link>
@@ -283,9 +283,9 @@ export default function AdminProjectDetail() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <div className="flex items-center gap-4 mb-1">
-          <h1 className="text-3xl font-bold">{project.name}</h1>
-          <span className={`text-xs px-3 py-1 rounded-full border bg-gradient-to-r ${stageGradients[status as keyof typeof stageGradients] || "from-premium-violet to-premium-accent"} text-white`}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold break-words">{project.name}</h1>
+          <span className={`text-xs px-3 py-1 rounded-full border bg-gradient-to-r ${stageGradients[status as keyof typeof stageGradients] || "from-premium-violet to-premium-accent"} text-white w-fit`}>
             {stages.find(s => s.key === status)?.label || status}
           </span>
         </div>
@@ -295,7 +295,7 @@ export default function AdminProjectDetail() {
         </p>
       </motion.div>
 
-      <div className="flex gap-1 mb-8 p-1 bg-premium-darker rounded-xl border border-white/5 w-fit overflow-x-auto">
+      <div className="flex gap-1 mb-8 p-1 bg-premium-darker rounded-xl border border-white/5 w-full overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}

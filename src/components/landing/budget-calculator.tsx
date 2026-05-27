@@ -150,17 +150,17 @@ export function BudgetCalculator() {
 
   if (submitted) {
     return (
-      <section id="presupuesto" ref={sectionRef} className="relative py-32 overflow-hidden">
+      <section id="presupuesto" ref={sectionRef} className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-premium-black to-premium-darker" />
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
           >
-            <CheckCircle className="w-20 h-20 text-green-400 mx-auto mb-6" />
+            <CheckCircle className="w-16 sm:w-20 h-16 sm:h-20 text-green-400 mx-auto mb-6" />
           </motion.div>
-          <h2 className="text-4xl font-bold mb-4">¡Presupuesto enviado!</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">¡Presupuesto enviado!</h2>
           <p className="text-gray-400 mb-8">
             Te estamos redirigiendo a WhatsApp para confirmar los detalles. También te enviaremos un email con el resumen.
           </p>
@@ -177,10 +177,10 @@ export function BudgetCalculator() {
 
   if (hasError) {
     return (
-      <section id="presupuesto" ref={sectionRef} className="relative py-32 overflow-hidden">
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
-          <AlertCircle className="w-20 h-20 text-red-400 mx-auto mb-6" />
-          <h2 className="text-4xl font-bold mb-4">Error al enviar</h2>
+      <section id="presupuesto" ref={sectionRef} className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
+        <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 text-center">
+          <AlertCircle className="w-16 sm:w-20 h-16 sm:h-20 text-red-400 mx-auto mb-6" />
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Error al enviar</h2>
           <p className="text-gray-400 mb-8">Ocurrió un error al procesar tu solicitud. Intentá de nuevo.</p>
           <button onClick={() => setError(false)} className="premium-button">
             Intentar de nuevo
@@ -191,11 +191,11 @@ export function BudgetCalculator() {
   }
 
   return (
-    <section id="presupuesto" ref={sectionRef} className="relative py-32 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-premium-darker via-premium-black to-premium-darker" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-premium-violet/30 to-transparent" />
+      <section id="presupuesto" ref={sectionRef} className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-premium-darker via-premium-black to-premium-darker" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-premium-violet/30 to-transparent" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16 animate-in">
           <span className="text-premium-accent text-sm uppercase tracking-[0.2em] mb-4 block">
             Presupuesto

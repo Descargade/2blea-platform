@@ -163,13 +163,13 @@ export default function ServiciosPage() {
   return (
     <div className="min-h-screen bg-premium-black text-white">
       {/* Header */}
-      <header className="relative py-24 overflow-hidden border-b border-white/5">
+      <header className="relative py-16 sm:py-24 overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 grid-bg opacity-30" />
         <div className="absolute inset-0 bg-gradient-radial from-premium-violet/5 via-transparent to-transparent" />
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-premium-violet/30 to-transparent" />
         <div className="absolute top-[20%] left-[15%] w-72 h-72 bg-premium-violet/8 rounded-full blur-[120px]" />
         <div className="absolute bottom-[20%] right-[15%] w-64 h-64 bg-premium-glow/8 rounded-full blur-[100px]" />
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <div className="anim-up">
             <Link
               href="/"
@@ -200,9 +200,9 @@ export default function ServiciosPage() {
       </header>
 
       {/* Services List */}
-      <section className="relative py-32">
+      <section className="relative py-16 sm:py-24 lg:py-32">
         <div className="absolute inset-0 bg-gradient-to-b from-premium-darker/50 via-premium-black to-premium-darker/30" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 space-y-32">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24 lg:space-y-32">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="premium-card p-8 space-y-4">
@@ -311,13 +311,13 @@ export default function ServiciosPage() {
       </section>
 
       {/* Footer CTA */}
-      <section className="relative py-24 overflow-hidden border-t border-white/5">
+      <section className="relative py-16 sm:py-24 overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-gradient-to-b from-premium-darker/30 to-premium-black" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-[500px] h-[500px] bg-premium-violet/5 rounded-full blur-[150px]" />
         </div>
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             ¿No encontrás lo que <span className="text-gradient">buscás</span>?
           </h2>
           <p className="text-gray-400 mb-8 text-lg max-w-xl mx-auto">

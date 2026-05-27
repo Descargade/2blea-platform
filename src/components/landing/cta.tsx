@@ -32,14 +32,14 @@ export function CTASection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-32 overflow-hidden">
+    <section ref={sectionRef} className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-premium-darker" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-premium-violet/30 to-transparent" />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-[600px] h-[600px] bg-premium-violet/5 rounded-full blur-[150px]" />
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <div className="anim-up">
           <span className="text-premium-accent text-sm uppercase tracking-[0.2em] mb-4 block">
             Listo para empezar

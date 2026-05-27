@@ -36,9 +36,9 @@ export function ContactSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-32 overflow-hidden">
+    <section ref={sectionRef} className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-premium-darker to-premium-black" />
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <div className="anim-up mb-16">
           <span className="text-premium-accent text-sm uppercase tracking-[0.2em] mb-4 block">
             Contacto

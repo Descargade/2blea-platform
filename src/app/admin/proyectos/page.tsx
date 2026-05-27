@@ -180,51 +180,81 @@ export default function AdminProyectos() {
         {isLoading ? <TableSkeleton rows={5} /> : list.length === 0 ? (
           <EmptyState icon={<FolderKanban className="w-12 h-12" />} title="No hay proyectos" description="Los proyectos creados aparecerán aquí" />
         ) : (
-          <div className="overflow-x-auto" role="table">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10 text-left text-sm text-gray-400">
-                  <th className="p-4 font-medium" scope="col">Proyecto</th>
-                  <th className="p-4 font-medium" scope="col">Cliente</th>
-                  <th className="p-4 font-medium" scope="col">Servicio</th>
-                  <th className="p-4 font-medium" scope="col">Estado</th>
-                  <th className="p-4 font-medium" scope="col">Progreso</th>
-                  <th className="p-4 font-medium" scope="col">Costo</th>
-                  <th className="p-4 font-medium" scope="col">Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map((p) => (
-                  <tr key={p.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-medium">
-                      <Link href={`/admin/proyectos/${p.id}`} className="hover:text-premium-accent transition-colors">
-                        {p.name}
-                      </Link>
-                    </td>
-                    <td className="p-4 text-gray-400">{p.client?.user?.name || "---"}</td>
-                    <td className="p-4 text-gray-400">{p.service?.name || "---"}</td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded-full border ${statusStyles[p.status] || ""}`}>
-                        {statusLabels[p.status] || p.status}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={p.progress} aria-valuemin={0} aria-valuemax={100}>
-                          <div className="h-full bg-premium-violet rounded-full transition-all duration-500" style={{ width: `${p.progress}%` }} />
-                        </div>
-                        <span className="text-sm text-gray-400 w-8 text-right">{p.progress}%</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-gray-400">
-                      {p.cost ? `$${p.cost.toLocaleString("es-AR")}` : "---"}
-                    </td>
-                    <td className="p-4 text-gray-400 text-sm">{p.createdAt ? new Date(p.createdAt).toLocaleDateString("es-AR") : "---"}</td>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto" role="table">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10 text-left text-sm text-gray-400">
+                    <th className="p-4 font-medium" scope="col">Proyecto</th>
+                    <th className="p-4 font-medium" scope="col">Cliente</th>
+                    <th className="p-4 font-medium" scope="col">Servicio</th>
+                    <th className="p-4 font-medium" scope="col">Estado</th>
+                    <th className="p-4 font-medium" scope="col">Progreso</th>
+                    <th className="p-4 font-medium" scope="col">Costo</th>
+                    <th className="p-4 font-medium" scope="col">Fecha</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {list.map((p) => (
+                    <tr key={p.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="p-4 font-medium">
+                        <Link href={`/admin/proyectos/${p.id}`} className="hover:text-premium-accent transition-colors">
+                          {p.name}
+                        </Link>
+                      </td>
+                      <td className="p-4 text-gray-400">{p.client?.user?.name || "---"}</td>
+                      <td className="p-4 text-gray-400">{p.service?.name || "---"}</td>
+                      <td className="p-4">
+                        <span className={`text-xs px-2 py-1 rounded-full border ${statusStyles[p.status] || ""}`}>
+                          {statusLabels[p.status] || p.status}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={p.progress} aria-valuemin={0} aria-valuemax={100}>
+                            <div className="h-full bg-premium-violet rounded-full transition-all duration-500" style={{ width: `${p.progress}%` }} />
+                          </div>
+                          <span className="text-sm text-gray-400 w-8 text-right">{p.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-gray-400">
+                        {p.cost ? `$${p.cost.toLocaleString("es-AR")}` : "---"}
+                      </td>
+                      <td className="p-4 text-gray-400 text-sm">{p.createdAt ? new Date(p.createdAt).toLocaleDateString("es-AR") : "---"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="md:hidden divide-y divide-white/5">
+              {list.map((p) => (
+                <Link key={p.id} href={`/admin/proyectos/${p.id}`} className="block p-4 hover:bg-white/5 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{p.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{p.client?.user?.name || "Sin cliente"}{p.service ? ` · ${p.service.name}` : ""}</p>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border shrink-0 ml-2 ${statusStyles[p.status] || ""}`}>
+                      {statusLabels[p.status] || p.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-premium-violet rounded-full" style={{ width: `${p.progress}%` }} />
+                    </div>
+                    <span className="text-xs text-gray-500">{p.progress}%</span>
+                  </div>
+                  <div className="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>{p.cost ? `$${p.cost.toLocaleString("es-AR")}` : "---"}</span>
+                    <span>{p.createdAt ? new Date(p.createdAt).toLocaleDateString("es-AR") : "---"}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
