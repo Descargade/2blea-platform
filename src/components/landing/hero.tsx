@@ -133,10 +133,10 @@ export function HeroSection() {
             </svg>
           </a>
           <a
-            href="#servicios"
+            href="/servicios"
             className="premium-button-outline text-lg px-10 py-4"
           >
-            Ver servicios
+            Conocé nuestros servicios
           </a>
         </div>
 
