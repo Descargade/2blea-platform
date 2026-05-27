@@ -20,25 +20,26 @@ function getCloudinaryUrl(key: string, mimeType: string): string {
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ key: string[] }> }
 ) {
   try {
     await requireAuth();
     const { key } = await params;
+    const keyStr = Array.isArray(key) ? key.join("/") : key;
 
     const projectFile = await prisma.projectFile.findFirst({
-      where: { key, deletedAt: null },
+      where: { key: keyStr, deletedAt: null },
     });
     if (!projectFile) {
       return NextResponse.json({ success: false, error: "Archivo no encontrado" }, { status: 404 });
     }
 
     if (process.env.CLOUDINARY_CLOUD_NAME) {
-      const url = getCloudinaryUrl(key, projectFile.mimeType);
+      const url = getCloudinaryUrl(keyStr, projectFile.mimeType);
       return NextResponse.redirect(url, 302);
     }
 
-    const { buffer } = await storage.read(key);
+    const { buffer } = await storage.read(keyStr);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": projectFile.mimeType,
@@ -52,20 +53,21 @@ export async function GET(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ key: string }> }
+  { params }: { params: Promise<{ key: string[] }> }
 ) {
   try {
     const user = await requireAuth();
     const { key } = await params;
+    const keyStr = Array.isArray(key) ? key.join("/") : key;
 
     const projectFile = await prisma.projectFile.findFirst({
-      where: { key, deletedAt: null },
+      where: { key: keyStr, deletedAt: null },
     });
     if (!projectFile) {
       return NextResponse.json({ success: false, error: "Archivo no encontrado" }, { status: 404 });
     }
 
-    await storage.delete(key);
+    await storage.delete(keyStr);
     await prisma.projectFile.update({
       where: { id: projectFile.id },
       data: { deletedAt: new Date() },
