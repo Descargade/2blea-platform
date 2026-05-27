@@ -26,7 +26,7 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
     );
   }
 
-  if (status === "unauthenticated") redirect("/login");
+  if (status === "unauthenticated") redirect("/cliente/login");
 
   return (
     <div className="min-h-screen bg-premium-black">

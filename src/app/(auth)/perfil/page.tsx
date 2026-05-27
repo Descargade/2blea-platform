@@ -74,7 +74,7 @@ export default function ProfilePage() {
       <Loader2 className="w-8 h-8 animate-spin text-premium-accent" />
     </div>
   );
-  if (status === "unauthenticated") redirect("/login");
+  if (status === "unauthenticated") redirect("/admin/login");
 
   return (
     <div className="min-h-screen bg-premium-black">

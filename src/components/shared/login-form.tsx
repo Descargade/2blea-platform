@@ -3,7 +3,11 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+interface LoginFormProps {
+  redirectTo: string;
+}
+
+export default function LoginForm({ redirectTo }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,12 +20,7 @@ export default function LoginPage() {
     setError("");
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) { setError("Credenciales incorrectas"); setLoading(false); return; }
-    const res = await fetch("/api/auth/session");
-    const session = await res.json();
-    const role = session?.user?.role;
-    if (role === "ADMIN") router.push("/admin/dashboard");
-    else if (role === "CLIENTE") router.push("/cliente/dashboard");
-    else router.push("/");
+    router.push(redirectTo);
   };
 
   return (
@@ -48,11 +47,6 @@ export default function LoginPage() {
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </button>
           </form>
-          <div className="mt-6 pt-6 border-t border-white/10">
-            <p className="text-xs text-gray-500 text-center">
-              Demo: gonzalezlucasaaron@gmail.com / cliente@2blea.com<br />Contraseña: password123
-            </p>
-          </div>
         </div>
       </div>
     </div>

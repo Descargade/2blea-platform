@@ -30,7 +30,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Login redirect for authenticated users (simple cookie check)
-  if (pathname === "/login") {
+  if (pathname === "/admin/login" || pathname === "/cliente/login") {
     const tokenCookie = request.cookies.get("next-auth.session-token")
       || request.cookies.get("__Secure-next-auth.session-token")
       || request.cookies.get("authjs.session-token");
@@ -70,5 +70,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/cliente/:path*", "/login"],
+  matcher: ["/admin/:path*", "/cliente/:path*"],
 };

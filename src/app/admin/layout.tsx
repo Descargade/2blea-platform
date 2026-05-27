@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   if (status === "unauthenticated" || session?.user?.role !== "ADMIN") {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
   return (
