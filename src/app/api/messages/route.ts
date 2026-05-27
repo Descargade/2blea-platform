@@ -4,6 +4,7 @@ import { messageCreateSchema } from "@/lib/validations";
 import { success, created, error } from "@/lib/api-response";
 import { pusherServer, CHANNELS, EVENTS } from "@/server/pusher";
 import { prisma } from "@/lib/prisma";
+import { activity } from "@/lib/activity";
 
 export async function GET() {
   try {
@@ -21,6 +22,11 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = messageCreateSchema.parse(body);
     const msg = await messageService.createMessage(data, user.id);
+
+    // Notifications + activity
+    try {
+      await activity.messageSent(data.conversationId, null, user.id, data.content);
+    } catch { /* silent */ }
 
     // Realtime: trigger message event
     try {

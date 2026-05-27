@@ -84,13 +84,14 @@ export const activity = {
     }
 
     for (const recipientId of recipientIds) {
+      const isClientRecipient = conv.client?.user?.id === recipientId;
       logs.push(
         createNotification({
           userId: recipientId,
           type: "NEW_MESSAGE",
           title: `Nuevo mensaje de ${senderName}`,
           message: content.slice(0, 150),
-          link: projectId ? `/admin/proyectos/${projectId}` : "/admin/mensajes",
+          link: isClientRecipient ? "/cliente/mensajes" : "/admin/mensajes",
         })
       );
     }
