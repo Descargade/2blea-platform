@@ -140,6 +140,15 @@ export function HeroSection() {
           </a>
         </div>
 
+        <div className="mt-8">
+          <a
+            href="/cliente/login"
+            className="text-gray-500 hover:text-premium-accent transition-colors text-sm"
+          >
+            ¿Ya tienes cuenta? Inicia sesión
+          </a>
+        </div>
+
         <div className="mt-16 flex items-center justify-center gap-8 text-gray-500 text-sm">
           {["Desarrollo Web", "Diseño UI/UX", "E-commerce", "Sistemas"].map(
             (tag) => (

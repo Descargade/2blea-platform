@@ -33,6 +33,12 @@ export function Footer() {
             >
               Presupuesto
             </a>
+            <a
+              href="/cliente/login"
+              className="hover:text-premium-accent transition-colors"
+            >
+              Iniciar sesión
+            </a>
           </div>
 
           <p className="text-sm text-gray-600">

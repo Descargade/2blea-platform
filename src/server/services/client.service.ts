@@ -39,7 +39,7 @@ export const clientService = {
     return client;
   },
 
-  async create(data: ClientCreateInput) {
+  async create(data: ClientCreateInput, adminId?: string) {
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
     if (existing) throw new ConflictError("El email ya está registrado");
 
@@ -65,6 +65,17 @@ export const clientService = {
       include: { client: true },
     });
     dbLogger.info({ userId: user.id }, "Cliente creado con contraseña autogenerada");
+
+    if (adminId && user.client) {
+      await prisma.conversation.create({
+        data: {
+          clientId: user.client.id,
+          adminId,
+        },
+      });
+      dbLogger.info({ clientId: user.client.id, adminId }, "Conversación creada automáticamente para nuevo cliente");
+    }
+
     return { user, rawPassword };
   },
 

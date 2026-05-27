@@ -15,10 +15,10 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    await requireAdmin();
+    const admin = await requireAdmin();
     const body = await req.json();
     const data = clientCreateSchema.parse(body);
-    const client = await clientService.create(data);
+    const client = await clientService.create(data, admin.id);
     return created(client, "Cliente creado correctamente");
   } catch (e) {
     return error(e, "Error al crear cliente");
