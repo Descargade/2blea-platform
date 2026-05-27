@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { usePusher } from "@/components/shared/pusher-provider";
 import { useQueryClient } from "@tanstack/react-query";
+import type { ProjectItem } from "@/types";
 
 export interface RealtimeMessage {
   id: string;
@@ -65,15 +66,30 @@ export function useRealtimeProject(projectId: string, userId: string) {
       qc.invalidateQueries({ queryKey: ["projects"] });
     };
 
+    const onFileDeleted = (data: { fileId: string; key: string; userId: string }) => {
+      qc.setQueryData<ProjectItem[]>(["projects"], (old) => {
+        if (!old) return old;
+        return old.map((proj) => {
+          if (proj.id !== projectId) return proj;
+          return { ...proj, files: (proj.files ?? []).filter((f) => f.key !== data.key) };
+        });
+      });
+      qc.setQueryData<ProjectItem>(["project", projectId], (old) => {
+        if (!old) return old;
+        return { ...old, files: (old.files ?? []).filter((f) => f.key !== data.key) };
+      });
+      invalidate();
+    };
+
     ch.bind("project-updated", invalidate);
     ch.bind("file-uploaded", invalidate);
-    ch.bind("file-deleted", invalidate);
+    ch.bind("file-deleted", onFileDeleted);
     ch.bind("activity-new", invalidate);
 
     return () => {
       ch.unbind("project-updated", invalidate);
       ch.unbind("file-uploaded", invalidate);
-      ch.unbind("file-deleted", invalidate);
+      ch.unbind("file-deleted", onFileDeleted);
       ch.unbind("activity-new", invalidate);
     };
   }, [pusher, projectId, channel, qc]);
@@ -194,14 +210,29 @@ export function useRealtimeProjectUpdates(userId: string) {
       qc.invalidateQueries({ queryKey: ["project"] });
     };
 
+    const onFileDeleted = (data: { fileId: string; key: string; projectId: string; userId: string }) => {
+      qc.setQueryData<ProjectItem[]>(["projects"], (old) => {
+        if (!old) return old;
+        return old.map((proj) => {
+          if (proj.id !== data.projectId) return proj;
+          return { ...proj, files: (proj.files ?? []).filter((f) => f.key !== data.key) };
+        });
+      });
+      qc.setQueryData<ProjectItem>(["project", data.projectId], (old) => {
+        if (!old) return old;
+        return { ...old, files: (old.files ?? []).filter((f) => f.key !== data.key) };
+      });
+      invalidateProjects();
+    };
+
     ch.bind("project-updated", invalidateProjects);
     ch.bind("file-uploaded", invalidateProjects);
-    ch.bind("file-deleted", invalidateProjects);
+    ch.bind("file-deleted", onFileDeleted);
 
     return () => {
       ch.unbind("project-updated", invalidateProjects);
       ch.unbind("file-uploaded", invalidateProjects);
-      ch.unbind("file-deleted", invalidateProjects);
+      ch.unbind("file-deleted", onFileDeleted);
     };
   }, [pusher, userId, channel, qc]);
 }

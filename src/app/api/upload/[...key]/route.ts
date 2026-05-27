@@ -109,6 +109,7 @@ export async function DELETE(
       await pusherServer.trigger(channels, EVENTS.FILE_DELETED, {
         fileId: projectFile.id,
         key: projectFile.key,
+        projectId: projectFile.projectId,
         userId: user.id,
       });
     } catch { /* silent */ }
