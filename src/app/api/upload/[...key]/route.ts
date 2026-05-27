@@ -67,7 +67,15 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: "Archivo no encontrado" }, { status: 404 });
     }
 
-    await storage.delete(keyStr);
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+      let resourceType = "image";
+      if (projectFile.mimeType.startsWith("video/")) resourceType = "video";
+      else if (!projectFile.mimeType.startsWith("image/")) resourceType = "raw";
+      await cloudinary.uploader.destroy(keyStr, { resource_type: resourceType as any, invalidate: true });
+    } else {
+      await storage.delete(keyStr);
+    }
+
     await prisma.projectFile.update({
       where: { id: projectFile.id },
       data: { deletedAt: new Date() },

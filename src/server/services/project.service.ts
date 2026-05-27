@@ -14,7 +14,7 @@ export const projectService = {
             include: { user: { select: { id: true, name: true, email: true } } },
           },
           service: { select: { id: true, name: true } },
-          files: true,
+          files: { where: { deletedAt: null } },
           links: { orderBy: { createdAt: "desc" } },
           payments: { orderBy: { date: "desc" } },
         },
@@ -27,7 +27,7 @@ export const projectService = {
       where: { clientId: client.id, deletedAt: null },
       include: {
         service: { select: { id: true, name: true } },
-        files: true,
+        files: { where: { deletedAt: null } },
         links: { orderBy: { createdAt: "desc" } },
         payments: { orderBy: { date: "desc" } },
       },
@@ -41,7 +41,7 @@ export const projectService = {
       include: {
         client: { include: { user: { select: { id: true, name: true, email: true } } } },
         service: { select: { id: true, name: true } },
-        files: true,
+        files: { where: { deletedAt: null } },
         links: { orderBy: { createdAt: "desc" } },
         payments: { orderBy: { date: "desc" } },
         activityLogs: { orderBy: { createdAt: "desc" }, take: 20 },

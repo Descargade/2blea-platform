@@ -5,7 +5,7 @@ import { useProjects } from "@/hooks/queries/use-projects";
 import { useRealtimeProject } from "@/hooks/use-realtime";
 import { CardSkeleton } from "@/components/shared/loading";
 import { ErrorState } from "@/components/shared/error-state";
-import { ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Link2, DollarSign, Package } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Link2, DollarSign, Package, Download, Film, Archive } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import type { ProjectItem } from "@/types";
@@ -276,10 +276,30 @@ export default function ClienteProjectDetail() {
                 href={`/api/upload/${f.key}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass rounded-xl p-4 text-center hover:bg-white/10 transition-colors block"
+                className="group relative aspect-square rounded-xl overflow-hidden bg-premium-darker border border-white/5 hover:border-premium-violet/20 transition-all duration-300 block"
               >
-                <p className="text-sm font-medium truncate" title={f.originalName}>{f.originalName}</p>
-                <p className="text-xs text-gray-500 mt-1">{(f.size / 1024).toFixed(1)} KB</p>
+                {f.mimeType.startsWith("image/") ? (
+                  <img src={`/api/upload/${f.key}`} alt={f.originalName} className="w-full h-full object-cover" />
+                ) : f.mimeType.startsWith("video/") ? (
+                  <div className="w-full h-full flex items-center justify-center bg-premium-black">
+                    <Film className="w-10 h-10 text-gray-500" />
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="p-3 rounded-xl bg-premium-violet/10 inline-block mb-2">
+                        {f.mimeType === "application/pdf" ? <FileText className="w-6 h-6" /> : <Archive className="w-6 h-6" />}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                  <Download className="w-6 h-6 text-white" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/80 to-transparent">
+                  <p className="text-xs truncate text-gray-300">{f.originalName}</p>
+                  <p className="text-[10px] text-gray-500">{(f.size / 1024).toFixed(1)} KB</p>
+                </div>
               </a>
             ))}
           </div>

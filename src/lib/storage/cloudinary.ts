@@ -80,7 +80,11 @@ export const cloudinaryProvider: StorageProvider = {
     configure();
     const publicId = key.includes("/") ? key.split("/").slice(-1)[0]! : key;
     const folder = key.includes("/") ? key.split("/").slice(0, -1).join("/") : "";
-    await cloudinary.uploader.destroy(`${folder ? `${folder}/` : ""}${publicId}`);
+    const folderLc = folder.toLowerCase();
+    let resourceType: "image" | "video" | "raw" = "image";
+    if (folderLc.includes("videos")) resourceType = "video";
+    else if (folderLc.includes("documents") || folderLc.includes("archives") || folderLc.includes("misc")) resourceType = "raw";
+    await cloudinary.uploader.destroy(`${folder ? `${folder}/` : ""}${publicId}`, { resource_type: resourceType, invalidate: true });
   },
 
   getUrl(key) {
