@@ -118,6 +118,16 @@ body {
   box-shadow: 0 0 0 2px rgba(108, 59, 217, 0.3);
 }
 
+select.premium-input {
+  color-scheme: dark;
+  background-color: #111827;
+}
+
+select.premium-input option {
+  background: #111827;
+  color: white;
+}
+
 .premium-button {
   background: var(--color-premium-violet);
   color: white;
