@@ -30,14 +30,14 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       aria-modal="true"
       aria-label={title}
     >
-      <div className="w-full max-w-lg bg-premium-darker border border-white/10 rounded-2xl shadow-2xl">
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+      <div className="w-full max-w-xl bg-premium-darker border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 transition-colors" aria-label="Cerrar">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
