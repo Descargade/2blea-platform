@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Link2, DollarSign, Package, Download, Film, Archive } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect } from "react";
 import type { ProjectItem } from "@/types";
 
 const stages = [
@@ -60,6 +61,11 @@ export default function ClienteProjectDetail() {
   const p = list.find((p) => p.id === projectId) ?? null;
 
   useRealtimeProject(projectId, session?.user?.id ?? "");
+
+  useEffect(() => {
+    const interval = setInterval(() => refetch(), 15000);
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   if (isLoading) {
     return (
