@@ -43,6 +43,14 @@ for (let i = 0; i < maxRetries; i++) {
 console.log("\n=== Step 4: Generating Prisma client ===");
 run("prisma generate");
 
-// Step 5: Build Next.js
-console.log("\n=== Step 5: Building Next.js ===");
+// Step 5: Seed (upserts admin, services, etc.)
+console.log("\n=== Step 5: Seeding database ===");
+try {
+  run("npx --yes tsx prisma/seed.ts", { env: deployEnv });
+} catch {
+  console.log("ℹ️ Seed failed (may already be up to date)");
+}
+
+// Step 6: Build Next.js
+console.log("\n=== Step 6: Building Next.js ===");
 run("next build");
