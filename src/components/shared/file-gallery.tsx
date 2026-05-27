@@ -64,10 +64,14 @@ export function FileGallery({ projectId }: FileGalleryProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (key: string) => {
-      await api.delete(`/upload/${key}`);
+      const res = await api.delete(`/upload/${key}`);
+      if (res.status !== 200) throw new Error(res.data?.error ?? "Error al eliminar");
+      return res.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["project-files", projectId] });
+      qc.invalidateQueries({ queryKey: ["project", projectId] });
+      qc.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 

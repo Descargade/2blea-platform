@@ -68,6 +68,12 @@ export async function DELETE(
     }
 
     if (process.env.CLOUDINARY_CLOUD_NAME) {
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+        secure: true,
+      });
       let resourceType = "image";
       if (projectFile.mimeType.startsWith("video/")) resourceType = "video";
       else if (!projectFile.mimeType.startsWith("image/")) resourceType = "raw";
@@ -90,9 +96,17 @@ export async function DELETE(
       },
     });
 
-    // Realtime
+    // Realtime — broadcast to both project channel and user channel
     try {
-      await pusherServer.trigger(CHANNELS.project(projectFile.projectId), EVENTS.FILE_DELETED, {
+      const channels = [CHANNELS.project(projectFile.projectId)];
+      const proj = await prisma.project.findFirst({
+        where: { id: projectFile.projectId },
+        select: { client: { select: { userId: true } } },
+      });
+      if (proj?.client?.userId) {
+        channels.push(CHANNELS.user(proj.client.userId));
+      }
+      await pusherServer.trigger(channels, EVENTS.FILE_DELETED, {
         fileId: projectFile.id,
         key: projectFile.key,
         userId: user.id,

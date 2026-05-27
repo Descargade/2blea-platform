@@ -7,6 +7,8 @@ import { FileUpload } from "@/components/shared/file-upload";
 import { FileGallery } from "@/components/shared/file-gallery";
 import { ActivityTimeline } from "@/components/shared/activity-timeline";
 import { Modal } from "@/components/shared/modal";
+import { useRealtimeProject } from "@/hooks/use-realtime";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Save, RotateCcw, Plus, Trash2, Link2, Upload, Activity, CheckCircle2, Clock, AlertCircle } from "lucide-react";
@@ -163,10 +165,12 @@ function LinksSection({ project, onRefresh }: { project: ProjectItem; onRefresh:
 export default function AdminProjectDetail() {
   const params = useParams();
   const id = params.id as string;
+  const { data: session } = useSession();
   const { data: project, isLoading, isError, refetch } = useProject(id);
   const updateMutation = useUpdateProject();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<"editor" | "files" | "links" | "activity">("editor");
+  useRealtimeProject(id, session?.user?.id ?? "");
   const [dirty, setDirty] = useState(false);
 
   const [status, setStatus] = useState<string>("CONSULTA");
