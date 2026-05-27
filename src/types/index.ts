@@ -52,7 +52,9 @@ export interface ServiceItem {
   description: string;
   basePrice: number;
   active: boolean;
+  order: number;
   extras: ExtraItem[];
+  createdAt?: string;
 }
 
 export interface OfferItem {

@@ -60,7 +60,9 @@ export const serviceCreateSchema = z.object({
   name: nameSchema,
   description: z.string().optional(),
   basePrice: z.number().min(0, "El precio no puede ser negativo"),
+  active: z.boolean().optional().default(true),
   order: z.number().int().min(0).optional(),
+  extras: z.array(z.object({ name: z.string().min(1), price: z.number().min(0) })).optional(),
 });
 
 export const messageCreateSchema = z.object({
@@ -83,8 +85,16 @@ export const offerUpdateSchema = offerCreateSchema.partial();
 
 export const serviceUpdateSchema = z.object({
   id: z.string().min(1),
-  basePrice: z.number().min(0, "El precio no puede ser negativo"),
-  active: z.boolean(),
+  name: z.string().min(2).max(100).optional(),
+  description: z.string().optional(),
+  basePrice: z.number().min(0, "El precio no puede ser negativo").optional(),
+  active: z.boolean().optional(),
+  order: z.number().int().min(0).optional(),
+  extras: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string().min(1),
+    price: z.number().min(0),
+  })).optional(),
 });
 
 export const budgetCreateSchema = z.object({
