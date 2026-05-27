@@ -22,17 +22,17 @@ async function upsertExtra(serviceId: string, name: string, price: number) {
 async function main() {
   console.log("🌱 Iniciando seed...");
 
-  const password = bcrypt.hashSync("password123", 10);
+  const password = bcrypt.hashSync("Gonzalez020403", 10);
   const clientPassword = bcrypt.hashSync("cliente123", 10);
 
   // ── Admin ──
   const admin = await prisma.user.upsert({
     where: { email: "gonzalezlucasaaron@gmail.com" },
-    update: { rawPassword: "password123" },
+    update: { rawPassword: "Gonzalez020403" },
     create: {
       email: "gonzalezlucasaaron@gmail.com",
       password,
-      rawPassword: "password123",
+      rawPassword: "Gonzalez020403",
       name: "Admin 2bleA",
       role: "ADMIN",
     },
