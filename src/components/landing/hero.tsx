@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, Fragment } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { motion } from "framer-motion";
 
@@ -10,15 +10,6 @@ const floatingVariants = {
     transition: { duration: 6, repeat: Infinity, ease: "easeInOut" as const },
   },
 };
-
-const titleWords = [
-  { text: "Transformamos", className: "text-gradient" },
-  { text: "tu", className: "text-white" },
-  { text: "idea", className: "text-white" },
-  { text: "en", className: "text-white" },
-  { text: "realidad", className: "text-white" },
-  { text: ".", className: "text-premium-accent" },
-];
 
 export function HeroSection() {
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -89,21 +80,25 @@ export function HeroSection() {
           ref={titleRef}
           className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 sm:mb-6 leading-[1.15] sm:leading-[1.1]"
         >
-          <div className="overflow-hidden">
-            <span className="hero-word inline-block" style={{ opacity: 0 }}>
-              <span className="text-gradient">Transformamos</span>
-            </span>
-          </div>
-          <div className="overflow-hidden">
-            {titleWords.slice(1).map((w, i) => (
-              <Fragment key={i}>
-                {i > 0 && " "}
-                <span className="hero-word inline-block" style={{ opacity: 0 }}>
-                  <span className={w.className}>{w.text}</span>
-                </span>
-              </Fragment>
-            ))}
-          </div>
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-gradient">Transformamos</span>
+          </span>
+          <br />
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-white">tu</span>
+          </span>{" "}
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-white">idea</span>
+          </span>{" "}
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-white">en</span>
+          </span>{" "}
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-white">realidad</span>
+          </span>
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
+            <span className="text-premium-accent">.</span>
+          </span>
         </h1>
 
         <p
