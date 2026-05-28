@@ -1,4 +1,6 @@
 "use client";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import { motion } from "framer-motion";
 
 const floatingVariants = {
@@ -9,21 +11,50 @@ const floatingVariants = {
   },
 };
 
-const slideUpKeyframes = `
-@keyframes heroSlideUp {
-  from { opacity: 0; transform: translateY(60px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.animate-hero-line { animation: heroSlideUp 0.7s ease-out backwards; }
-`;
+const titleWords = [
+  { text: "Transformamos", className: "text-gradient" },
+  { text: "tu", className: "text-white" },
+  { text: "idea", className: "text-white" },
+  { text: "en", className: "text-white" },
+  { text: "realidad", className: "text-white" },
+  { text: ".", className: "text-premium-accent" },
+];
 
 export function HeroSection() {
-  const subtitleText = "Creamos experiencias digitales premium que impulsan tu negocio. Desarrollo web profesional con diseño cinematográfico.";
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (titleRef.current) {
+        gsap.fromTo(
+          titleRef.current.querySelectorAll(".hero-word"),
+          { y: 80, opacity: 0, rotateX: -35 },
+          { y: 0, opacity: 1, rotateX: 0, duration: 1.2, stagger: 0.04, ease: "power4.out" }
+        );
+      }
+      if (subtitleRef.current) {
+        gsap.fromTo(
+          subtitleRef.current,
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power3.out" }
+        );
+      }
+      if (ctaRef.current) {
+        gsap.fromTo(
+          ctaRef.current.children,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, delay: 1.2, ease: "power3.out" }
+        );
+      }
+    }, titleRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
+    <section className="relative min-h-screen flex items-center justify-center overflow-x-hidden">
       <div className="absolute inset-0 grid-bg opacity-40" />
       <div className="absolute inset-0 bg-gradient-radial from-premium-violet/5 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-premium-violet/10 rounded-full blur-[120px] animate-glow-pulse" />
@@ -43,9 +74,9 @@ export function HeroSection() {
         style={{ animationDelay: "2s" }}
       />
 
-      <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 py-12">
         <motion.div
-          className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-sm text-gray-400"
+          className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-6 sm:mb-8 text-sm text-gray-400"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -54,56 +85,51 @@ export function HeroSection() {
           Disponibles para nuevos proyectos
         </motion.div>
 
-        <style>{slideUpKeyframes}</style>
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]">
-          <span className="animate-hero-line inline-block" style={{ animationDelay: "0.1s" }}>
+        <h1
+          ref={titleRef}
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 sm:mb-6 leading-[1.15] sm:leading-[1.1]"
+        >
+          <span className="hero-word inline-block" style={{ opacity: 0 }}>
             <span className="text-gradient">Transformamos</span>
-          </span>
-          <br />
-          <span className="animate-hero-line inline-block" style={{ animationDelay: "0.25s" }}>
-            <span className="text-white">tu idea en realidad</span>
-            <span className="text-premium-accent">.</span>
-          </span>
+          </span>{" "}
+          {titleWords.slice(1).map((w, i) => (
+            <span key={i} className="hero-word inline-block" style={{ opacity: 0 }}>
+              <span className={w.className}>{w.text}</span>
+            </span>
+          ))}
         </h1>
 
-        <motion.p
-          className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed"
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
+        <p
+          ref={subtitleRef}
+          className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 sm:mb-12 leading-relaxed px-2"
+          style={{ opacity: 0 }}
         >
-          {subtitleText}
-        </motion.p>
+          Creamos experiencias digitales premium que impulsan tu negocio.
+          Desarrollo web profesional con diseño cinematográfico.
+        </p>
 
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.15, delayChildren: 1 } },
-          }}
+        <div
+          ref={ctaRef}
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center"
         >
-          <motion.a
+          <a
             href="#presupuesto"
-            className="premium-button text-lg px-10 py-4 inline-flex items-center gap-2 group"
-            variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+            className="premium-button text-base sm:text-lg px-8 sm:px-10 py-3.5 sm:py-4 inline-flex items-center justify-center gap-2 group"
           >
             Pedir presupuesto
-            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </motion.a>
-          <motion.a
+          </a>
+          <a
             href="/servicios"
-            className="premium-button-outline text-lg px-10 py-4"
-            variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+            className="premium-button-outline text-base sm:text-lg px-8 sm:px-10 py-3.5 sm:py-4 inline-flex items-center justify-center"
           >
             Conocé nuestros servicios
-          </motion.a>
-        </motion.div>
+          </a>
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <a
             href="/cliente/login"
             className="text-gray-500 hover:text-premium-accent transition-colors text-sm"
@@ -112,7 +138,7 @@ export function HeroSection() {
           </a>
         </div>
 
-        <div className="mt-16 flex items-center justify-center gap-3 sm:gap-8 text-gray-500 text-sm flex-wrap">
+        <div className="mt-10 sm:mt-16 flex items-center justify-center gap-2 sm:gap-8 text-gray-500 text-sm flex-wrap">
           {["Desarrollo Web", "Diseño UI/UX", "E-commerce", "Sistemas"].map(
             (tag) => (
               <span key={tag} className="glass rounded-full px-3 py-1.5 text-xs">
