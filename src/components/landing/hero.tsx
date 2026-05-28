@@ -47,25 +47,19 @@ export function HeroSection() {
         </motion.div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]">
-          {["Transformamos", "tu idea en realidad."].map((line, li) => (
-            <div key={li} className="overflow-hidden">
-              <motion.span
-                className="block"
-                initial={{ y: 80, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.7, delay: li * 0.15 + 0.1, ease: "easeOut" }}
-              >
-                {line === "Transformamos" ? (
-                  <span className="text-gradient">Transformamos</span>
-                ) : (
-                  <>
-                    <span className="text-white">tu idea en realidad</span>
-                    <span className="text-premium-accent">.</span>
-                  </>
-                )}
-              </motion.span>
-            </div>
-          ))}
+          <span className="text-gradient">Transformamos</span>
+          <br />
+          <span className="overflow-hidden inline-block">
+            <motion.span
+              className="block"
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+            >
+              <span className="text-white">tu idea en realidad</span>
+              <span className="text-premium-accent">.</span>
+            </motion.span>
+          </span>
         </h1>
 
         <motion.p
