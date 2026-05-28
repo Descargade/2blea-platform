@@ -465,15 +465,13 @@ export default function AdminProjectDetail() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm text-gray-400 uppercase tracking-wider">Pagos</h2>
               <div className="flex items-center gap-2">
-                {paymentsArr.length > 0 && (
-                  <button
-                    onClick={() => generateInvoicePdf(p, paymentsArr, paymentsArr.filter(py => py.status === "PAID").reduce((s, py) => s + py.amount, 0), paymentsArr.filter(py => py.status !== "PAID").reduce((s, py) => s + py.amount, 0))}
-                    className="premium-button-outline text-sm flex items-center gap-2"
-                    aria-label="Descargar factura"
-                  >
-                    <FileDown className="w-4 h-4" /> Factura
-                  </button>
-                )}
+                <button
+                  onClick={() => generateInvoicePdf(p, paymentsArr, paymentsArr.filter(py => py.status === "PAID").reduce((s, py) => s + py.amount, 0), paymentsArr.filter(py => py.status !== "PAID").reduce((s, py) => s + py.amount, 0))}
+                  className="premium-button-outline text-sm flex items-center gap-2"
+                  aria-label="Descargar factura"
+                >
+                  <FileDown className="w-4 h-4" /> Factura
+                </button>
                 <button onClick={() => setShowAddPayment(true)} className="premium-button text-sm flex items-center gap-2">
                   <Plus className="w-4 h-4" /> Agregar pago
                 </button>
