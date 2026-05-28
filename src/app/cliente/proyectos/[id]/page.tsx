@@ -5,10 +5,11 @@ import { useProjects } from "@/hooks/queries/use-projects";
 import { useRealtimeProject } from "@/hooks/use-realtime";
 import { CardSkeleton } from "@/components/shared/loading";
 import { ErrorState } from "@/components/shared/error-state";
-import { ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Link2, DollarSign, Package, Download, Film, Archive } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Link2, DollarSign, Package, Download, Film, Archive, FileDown } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect } from "react";
+import { generateInvoicePdf } from "@/lib/invoice";
 import type { ProjectItem } from "@/types";
 
 const stages = [
@@ -265,6 +266,18 @@ export default function ClienteProjectDetail() {
               })()}
             </div>
           </div>
+
+          {/* Invoice download */}
+          <button
+            onClick={() => {
+              const pays = p.payments ?? [];
+              generateInvoicePdf(p, pays, pays.filter(py => py.status === "PAID").reduce((s, py) => s + py.amount, 0), pays.filter(py => py.status !== "PAID").reduce((s, py) => s + py.amount, 0));
+            }}
+            className="premium-button-outline text-sm flex items-center gap-2 w-full justify-center mt-4"
+            aria-label="Descargar factura"
+          >
+            <FileDown className="w-4 h-4" /> Descargar factura
+          </button>
         </motion.div>
       </div>
 
