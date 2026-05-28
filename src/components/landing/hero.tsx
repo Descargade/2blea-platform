@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Fragment } from "react";
 import gsap from "gsap";
 import { motion } from "framer-motion";
 
@@ -89,14 +89,21 @@ export function HeroSection() {
           ref={titleRef}
           className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 sm:mb-6 leading-[1.15] sm:leading-[1.1]"
         >
-          <span className="hero-word inline-block" style={{ opacity: 0 }}>
-            <span className="text-gradient">Transformamos</span>
-          </span>{" "}
-          {titleWords.slice(1).map((w, i) => (
-            <span key={i} className="hero-word inline-block" style={{ opacity: 0 }}>
-              <span className={w.className}>{w.text}</span>
+          <div className="overflow-hidden">
+            <span className="hero-word inline-block" style={{ opacity: 0 }}>
+              <span className="text-gradient">Transformamos</span>
             </span>
-          ))}
+          </div>
+          <div className="overflow-hidden">
+            {titleWords.slice(1).map((w, i) => (
+              <Fragment key={i}>
+                {i > 0 && " "}
+                <span className="hero-word inline-block" style={{ opacity: 0 }}>
+                  <span className={w.className}>{w.text}</span>
+                </span>
+              </Fragment>
+            ))}
+          </div>
         </h1>
 
         <p
