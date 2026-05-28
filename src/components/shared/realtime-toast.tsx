@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRealtimeNotifications } from "@/hooks/use-realtime";
 import { X, MessageSquare, FileUp, RefreshCw, Percent, Bell } from "lucide-react";
@@ -23,6 +23,14 @@ const icons: Record<string, React.ReactNode> = {
 export function RealtimeToasts() {
   const { data: session } = useSession();
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const permRequested = useRef(false);
+
+  useEffect(() => {
+    if (typeof Notification !== "undefined" && Notification.permission === "default" && !permRequested.current) {
+      permRequested.current = true;
+      Notification.requestPermission();
+    }
+  }, []);
 
   const addToast = useCallback((notification: Toast) => {
     setToasts((prev) => {
@@ -32,6 +40,13 @@ export function RealtimeToasts() {
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== notification.id));
     }, 5000);
+
+    if (typeof Notification !== "undefined" && Notification.permission === "granted" && document.hidden) {
+      new Notification(notification.title, {
+        body: notification.message ?? undefined,
+        icon: "/favicon.ico",
+      });
+    }
   }, []);
 
   useRealtimeNotifications(session?.user?.id ?? "", addToast);

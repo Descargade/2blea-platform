@@ -11,10 +11,11 @@ import { useRealtimeProject } from "@/hooks/use-realtime";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, RotateCcw, Plus, Trash2, Link2, Upload, Activity, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, RotateCcw, Plus, Trash2, Link2, Upload, Activity, CheckCircle2, Clock, AlertCircle, FileDown } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
+import { generateInvoicePdf } from "@/lib/invoice";
 import type { ProjectItem, ProjectLink } from "@/types";
 
 const stages = [
@@ -463,9 +464,20 @@ export default function AdminProjectDetail() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm text-gray-400 uppercase tracking-wider">Pagos</h2>
-              <button onClick={() => setShowAddPayment(true)} className="premium-button text-sm flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Agregar pago
-              </button>
+              <div className="flex items-center gap-2">
+                {paymentsArr.length > 0 && (
+                  <button
+                    onClick={() => generateInvoicePdf(p, paymentsArr, paymentsArr.filter(py => py.status === "PAID").reduce((s, py) => s + py.amount, 0), paymentsArr.filter(py => py.status !== "PAID").reduce((s, py) => s + py.amount, 0))}
+                    className="premium-button-outline text-sm flex items-center gap-2"
+                    aria-label="Descargar factura"
+                  >
+                    <FileDown className="w-4 h-4" /> Factura
+                  </button>
+                )}
+                <button onClick={() => setShowAddPayment(true)} className="premium-button text-sm flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> Agregar pago
+                </button>
+              </div>
             </div>
 
             <Modal open={showAddPayment} onClose={() => setShowAddPayment(false)} title="Agregar pago">
