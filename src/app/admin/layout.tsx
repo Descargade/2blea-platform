@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,6 +46,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     );
   }
+
+  const handleSignOut = useCallback(() => {
+    signOut({ callbackUrl: "/admin/login", redirect: true });
+  }, []);
 
   if (pathname !== "/admin/login" && (status === "unauthenticated" || session?.user?.role !== "ADMIN")) {
     redirect("/admin/login");
@@ -103,14 +107,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="text-xs" aria-hidden="true">PR</span>
             <span>Perfil</span>
           </Link>
-          <Link
-            href="/api/auth/signout"
-            onClick={() => setSidebarOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+          <button
+            onClick={() => { setSidebarOpen(false); handleSignOut(); }}
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all w-full text-left"
           >
             <span className="text-xs" aria-hidden="true">SAL</span>
             <span>Cerrar sesión</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

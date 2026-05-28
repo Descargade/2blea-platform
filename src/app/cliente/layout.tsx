@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,6 +36,10 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
       </div>
     );
   }
+
+  const handleSignOut = useCallback(() => {
+    signOut({ callbackUrl: "/cliente/login", redirect: true });
+  }, []);
 
   if (pathname !== "/cliente/login" && status === "unauthenticated") redirect("/cliente/login");
 
@@ -81,9 +85,9 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
               Presupuestos
             </a>
             <NotificationDropdown />
-            <Link href="/api/auth/signout" className="text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap">
+            <button onClick={handleSignOut} className="text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap">
               Cerrar sesión
-            </Link>
+            </button>
           </nav>
 
           {/* Mobile hamburger */}
@@ -127,13 +131,12 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
                 <ExternalLink className="w-4 h-4" />
                 Presupuestos
               </a>
-              <Link
-                href="/api/auth/signout"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              <button
+                onClick={() => { setMenuOpen(false); handleSignOut(); }}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all w-full text-left"
               >
                 Cerrar sesión
-              </Link>
+              </button>
             </nav>
           </div>
         )}
