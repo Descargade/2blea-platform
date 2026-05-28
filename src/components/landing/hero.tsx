@@ -9,6 +9,14 @@ const floatingVariants = {
   },
 };
 
+const slideUpKeyframes = `
+@keyframes heroSlideUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-hero-line { animation: heroSlideUp 0.7s ease-out backwards; }
+`;
+
 export function HeroSection() {
   const subtitleText = "Creamos experiencias digitales premium que impulsan tu negocio. Desarrollo web profesional con diseño cinematográfico.";
 
@@ -46,19 +54,15 @@ export function HeroSection() {
           Disponibles para nuevos proyectos
         </motion.div>
 
+        <style>{slideUpKeyframes}</style>
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]">
-          <span className="text-gradient">Transformamos</span>
+          <span className="animate-hero-line inline-block" style={{ animationDelay: "0.1s" }}>
+            <span className="text-gradient">Transformamos</span>
+          </span>
           <br />
-          <span className="overflow-hidden inline-block">
-            <motion.span
-              className="block"
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            >
-              <span className="text-white">tu idea en realidad</span>
-              <span className="text-premium-accent">.</span>
-            </motion.span>
+          <span className="animate-hero-line inline-block" style={{ animationDelay: "0.25s" }}>
+            <span className="text-white">tu idea en realidad</span>
+            <span className="text-premium-accent">.</span>
           </span>
         </h1>
 
