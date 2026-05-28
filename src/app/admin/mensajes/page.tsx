@@ -257,7 +257,7 @@ export default function AdminMensajes() {
                   <button
                     type="submit"
                     disabled={!content.trim() || sendMutation.isPending}
-                    className="premium-button px-4"
+                    className="premium-button px-3 shrink-0"
                     aria-label="Enviar mensaje"
                   >
                     <Send className="w-4 h-4" />

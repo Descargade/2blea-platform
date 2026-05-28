@@ -435,7 +435,7 @@ export default function AdminProjectDetail() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="premium-card">
                   <h2 className="text-sm text-gray-400 uppercase tracking-wider mb-3">Inicio</h2>
                   <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setDirty(true); }} className="premium-input w-full" />

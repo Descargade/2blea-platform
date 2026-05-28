@@ -117,8 +117,8 @@ export default function ClienteMensajes() {
                 className="premium-input flex-1"
                 aria-label="Mensaje"
               />
-              <button type="submit" className="premium-button" disabled={!content.trim() || sendMutation.isPending}>
-                {sendMutation.isPending ? "Enviando..." : "Enviar"}
+              <button type="submit" className="premium-button px-3 shrink-0" disabled={!content.trim() || sendMutation.isPending} aria-label="Enviar mensaje">
+                <Send className="w-4 h-4" />
               </button>
             </form>
           </div>
