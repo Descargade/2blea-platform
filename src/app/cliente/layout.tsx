@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -20,6 +20,15 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-premium-black flex items-center justify-center">
@@ -38,7 +47,7 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
 
   return (
     <div className="min-h-screen bg-premium-black">
-      <header className="border-b border-white/10 bg-premium-darker/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-premium-darker/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/cliente/dashboard" className="text-xl font-bold text-gradient shrink-0" aria-label="Ir al dashboard">
             2bleA
@@ -88,7 +97,7 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-premium-darker/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-white/10 bg-premium-darker/95 backdrop-blur-xl z-50 overflow-y-auto max-h-[80vh]">
             <nav className="px-4 sm:px-6 py-4 space-y-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
