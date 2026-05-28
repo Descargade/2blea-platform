@@ -1,11 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import SplitType from "split-type";
 import { motion } from "framer-motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const floatingVariants = {
   initial: { y: 0 },
@@ -16,59 +10,10 @@ const floatingVariants = {
 };
 
 export function HeroSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (titleRef.current) {
-        const split = new SplitType(titleRef.current, { types: "lines,words" });
-        gsap.fromTo(
-          split.words,
-          { y: 80, opacity: 0, rotateX: -40 },
-          {
-            y: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 1.2,
-            stagger: 0.04,
-            ease: "power4.out",
-          }
-        );
-      }
-
-      if (subtitleRef.current) {
-        gsap.fromTo(
-          subtitleRef.current,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power3.out" }
-        );
-      }
-
-      if (ctaRef.current) {
-        gsap.fromTo(
-          ctaRef.current.children,
-          { y: 30, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.15,
-            delay: 1.2,
-            ease: "power3.out",
-          }
-        );
-      }
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
+  const subtitleText = "Creamos experiencias digitales premium que impulsan tu negocio. Desarrollo web profesional con diseño cinematográfico.";
 
   return (
     <section
-      ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       <div className="absolute inset-0 grid-bg opacity-40" />
@@ -101,44 +46,64 @@ export function HeroSection() {
           Disponibles para nuevos proyectos
         </motion.div>
 
-        <h1
-          ref={titleRef}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]"
-        >
-          <span className="text-gradient">Transformamos</span>
-          <br />
-          <span className="text-white">tu idea en realidad</span>
-          <span className="text-premium-accent">.</span>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.1]">
+          {["Transformamos", "tu idea en realidad."].map((line, li) => (
+            <div key={li} className="overflow-hidden">
+              <motion.span
+                className="block"
+                initial={{ y: 80, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: li * 0.15 + 0.1, ease: "easeOut" }}
+              >
+                {line === "Transformamos" ? (
+                  <span className="text-gradient">Transformamos</span>
+                ) : (
+                  <>
+                    <span className="text-white">tu idea en realidad</span>
+                    <span className="text-premium-accent">.</span>
+                  </>
+                )}
+              </motion.span>
+            </div>
+          ))}
         </h1>
 
-        <p
-          ref={subtitleRef}
+        <motion.p
           className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed"
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
         >
-          Creamos experiencias digitales premium que impulsan tu negocio.
-          Desarrollo web profesional con diseño cinematográfico.
-        </p>
+          {subtitleText}
+        </motion.p>
 
-        <div
-          ref={ctaRef}
+        <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.15, delayChildren: 1 } },
+          }}
         >
-          <a
+          <motion.a
             href="#presupuesto"
             className="premium-button text-lg px-10 py-4 inline-flex items-center gap-2 group"
+            variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
           >
             Pedir presupuesto
             <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="/servicios"
             className="premium-button-outline text-lg px-10 py-4"
+            variants={{ hidden: { y: 30, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
           >
             Conocé nuestros servicios
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
 
         <div className="mt-8">
           <a
